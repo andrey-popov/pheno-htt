@@ -17,8 +17,8 @@ TTRecoInputs::TTRecoInputs(DelphesReader *reader_, LJetsSelection *selector_,
     reader(reader_), selector(selector_),
     outputFile(outFileName.c_str(), "recreate"),
     histNeutrinoDist("NeutrinoDist", ";|#vec{p}_{T}^{miss} - #vec{p}_{T}^{#nu}| [GeV];Events",
-      200, 0., 200.),
-    histMassesHad("MassesHad", ";m_{t} [GeV];m_{W} [GeV];Events", 500, 0., 500., 500, 0., 500.),
+      100, 0., 200.),
+    histMassesHad("MassesHad", ";m_{t} [GeV];m_{W} [GeV];Events", 200, 50., 250., 150, 0., 150.),
     nuReco(173., 80.419002),  // Masses from param_card
     nVisited(0), nTargetLHE(0), nReconstructable(0), nFilled(0)
 {
