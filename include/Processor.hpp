@@ -24,28 +24,11 @@ class Plugin;
  * plugins in the path is skipped for this event. A plugin can also notify Processor that there are
  * no more events left in the current input file.
  * 
- * Plugins are registered under names provided by user. The names must be unique. A plugin can
- * access other plugins by their names.
- * 
  * When requested by user, Processor also creates an output ROOT file for each input file.
  * Arbitrary ROOT objects can be created and stored in it.
  */
 class Processor
 {
-private:
-    /// An auxiliary structure to describe a plugin placed in a path
-    struct PluginInPath
-    {
-        /// Pointer to the plugin
-        std::unique_ptr<Plugin> plugin;
-        
-        /// Name under which the plugin is registered
-        std::string name;
-        
-        /// Indicates whether the plugin has seen the event being processed currently
-        bool hasRun;
-    };
-    
 public:
     /// Constructor from a collection of paths to input files
     template<typename InputIt>
@@ -63,14 +46,6 @@ public:
     T *Book(std::string const &inFileDirectory, Args const &... args);
     
     /**
-     * Returns a non-owning pointer to registered plugin with given name
-     * 
-     * If the flag is set to true (default) and the requested plugin has not been run for the
-     * current event yet, an exception is thrown. This prevents using outdated results.
-     */
-    Plugin *GetPlugin(std::string const &name, bool checkState = true);
-    
-    /**
      * Requests automatic creation of output ROOT files
      * 
      * The files will be created in the given directory and named after input files.
@@ -78,11 +53,12 @@ public:
     void SetOutput(std::string const outputDir = "");
     
     /**
-     * Registers a new plugin under the given name
+     * Registers a new plugin
      * 
-     * The plugin is added at the end of the path. The ownership is transferred to this object.
+     * The plugin is added at the end of the path. It is not owned by the instance of Processor.
+     * A pointer to Processor is provided to the plugin.
      */
-    void RegisterPlugin(std::unique_ptr<Plugin> &&plugin, std::string const &name);
+    void RegisterPlugin(Plugin *plugin);
     
     /// Processes input files
     void Run();
@@ -96,7 +72,7 @@ private:
     std::queue<std::string> inputFiles;
     
     /// Registered plugins organized in an ordered sequence
-    std::vector<PluginInPath> path;
+    std::vector<Plugin *> path;
     
     /// Current input and output files
     std::unique_ptr<TFile> curInputFile, curOutputFile;

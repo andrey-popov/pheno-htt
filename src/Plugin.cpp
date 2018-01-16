@@ -2,7 +2,7 @@
 
 
 Plugin::Plugin():
-    master(nullptr)
+    processor(nullptr)
 {}
 
 
@@ -14,11 +14,7 @@ void Plugin::EndFile()
 {}
 
 
-void Plugin::Initialize()
-{}
-
-
-void Plugin::SetMaster(Processor *master_)
+void Plugin::SetProcessor(Processor *processor_)
 {
-    master = master_;
+    processor = processor_;
 }

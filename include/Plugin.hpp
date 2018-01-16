@@ -45,19 +45,11 @@ public:
      */
     virtual void EndFile();
     
-    /**
-     * Requests preparatory initialization
-     * 
-     * This method is to be called exactly once, before the first event is processed. Default
-     * implementation is trivial.
-     */
-    virtual void Initialize();
-    
     /// Requests processing of the current event
     virtual EventOutcome ProcessEventToOutcome() = 0;
     
     /// Sets non-owning pointer to an instance of Processor to which this plugin is attached
-    void SetMaster(Processor *master);
+    void SetProcessor(Processor *processor);
     
 private:
     /**
@@ -65,5 +57,5 @@ private:
      * 
      * Needed to allow communication with other plugins.
      */
-    Processor *master;
+    Processor *processor;
 };
