@@ -143,9 +143,6 @@ Plugin::EventOutcome DelphesReader::ProcessEventToOutcome()
     std::sort(muons.begin(), muons.end(), comp);
     std::sort(jets.begin(), jets.end(), comp);
     
-    if (readLHEParticles)
-        std::sort(lheParticles.begin(), lheParticles.end(), comp);
-    
     
     return Plugin::EventOutcome::Ok;
 }
