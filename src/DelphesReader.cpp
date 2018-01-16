@@ -9,7 +9,7 @@
 
 
 DelphesReader::DelphesReader():
-    bfEvent(nullptr),
+    bfEvents(nullptr),
     bfElectrons(nullptr), bfMuons(nullptr), bfJets(nullptr), bfMETs(nullptr),
     jetPtThreshold(20.), jetEtaThreshold(2.4)
 {}
@@ -17,7 +17,7 @@ DelphesReader::DelphesReader():
 
 DelphesReader::~DelphesReader()
 {
-    delete bfEvent;
+    delete bfEvents;
     delete bfElectrons;
     delete bfMuons;
     delete bfJets;
@@ -40,7 +40,7 @@ void DelphesReader::BeginFile(TFile *inputFile)
         tree->SetBranchStatus(mask, true);
     
     
-    tree->SetBranchAddress("Event", &bfEvent);
+    tree->SetBranchAddress("Event", &bfEvents);
     tree->SetBranchAddress("Electron", &bfElectrons);
     tree->SetBranchAddress("Muon", &bfMuons);
     tree->SetBranchAddress("Jet", &bfJets);
@@ -74,7 +74,7 @@ MissingET const &DelphesReader::GetMissPt() const
 
 double DelphesReader::GetWeight() const
 {
-    return dynamic_cast<Event *>(bfEvent->At(0))->Weight;
+    return dynamic_cast<LHEFEvent *>(bfEvents->At(0))->Weight;
 }
 
 
@@ -106,7 +106,7 @@ Plugin::EventOutcome DelphesReader::ProcessEventToOutcome()
     {
         Jet *j = dynamic_cast<Jet *>(bfJets->At(i));
         
-        if (j.PT > jetPtThreshold and std::abs(j.Eta) < jetEtaThreshold)
+        if (j->PT > jetPtThreshold and std::abs(j->Eta) < jetEtaThreshold)
             jets.emplace_back(*j);
     }
     

@@ -80,7 +80,7 @@ bool LJetsSelection::ProcessEvent()
     
     // Compute m_T(W) and apply selection on it
     auto const &met = reader->GetMissPt();
-    mtW = std::sqrt(2 * p4TightLepton.Pt() * met.PT *
+    mtW = std::sqrt(2 * p4TightLepton.Pt() * met.MET *
       (1 - std::cos(p4TightLepton.Phi() - met.Phi)));
     
     if (mtW < mtWThreshold)

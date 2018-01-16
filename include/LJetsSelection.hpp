@@ -43,7 +43,7 @@ private:
     double ptMuTight, ptMuLoose;
     
     /// Four-momentum of the only tight lepton allowed in the event
-    TLorentzVector p4TightLep;
+    TLorentzVector p4TightLepton;
     
     /// Value of the m_T(W) variable
     double mtW;

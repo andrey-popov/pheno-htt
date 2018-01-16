@@ -58,7 +58,7 @@ private:
     unsigned long long numEvents, iEvent;
     
     /// Buffer to read global generator-level information about an event
-    TClonesArray *bfEvent;
+    TClonesArray *bfEvents;
     
     TClonesArray *bfElectrons;
     std::vector<Electron> electrons;
