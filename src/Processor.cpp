@@ -114,6 +114,11 @@ void Processor::Run()
                     noEvents = true;
                     break;
                 }
+                else if (res == Plugin::EventOutcome::Rejected)
+                {
+                    // Event has been rejected. Do not execute remaining plugins for it.
+                    break;
+                }
             }
         }
         
