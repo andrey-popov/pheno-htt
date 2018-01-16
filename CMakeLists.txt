@@ -12,7 +12,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wextra -O2")
 
 # Sources for the main library
 set(LIBRARY_SOURCES "")
-foreach(file AnalysisPlugin.cpp Plugin.cpp Processor.cpp)
+foreach(file AnalysisPlugin.cpp DelphesReader.cpp LJetsSelection.cpp Plugin.cpp Processor.cpp)
     list(APPEND LIBRARY_SOURCES "${PROJECT_SOURCE_DIR}/src/${file}")
 endforeach(file)
 
