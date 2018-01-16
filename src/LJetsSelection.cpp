@@ -7,7 +7,7 @@ LJetsSelection::LJetsSelection(DelphesReader *reader_):
     reader(reader_),
     ptEleTight(30.), ptEleLoose(10.),
     ptMuTight(30.), ptMuLoose(10.),
-    mtWThreshold(50.)
+    mtWThreshold(0.)
 {}
 
 
