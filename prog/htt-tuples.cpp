@@ -10,14 +10,14 @@ using std::cout;
 
 int main(int argc, char **argv)
 {
-    if (argc != 2)
+    if (argc < 2)
     {
         std::cerr << "Usage: htt-tuples INPUT_FILE_MASK\n";
         return EXIT_FAILURE;
     }
     
     
-    Processor processor(argv[1]);
+    Processor processor(argv + 1, argv + argc);
     
     DelphesReader reader;
     processor.RegisterPlugin(&reader);
