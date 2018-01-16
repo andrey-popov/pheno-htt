@@ -13,7 +13,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wextra -O2")
 # Sources for the main library
 set(LIBRARY_SOURCES "")
 foreach(file AnalysisPlugin.cpp DelphesReader.cpp LJetsSelection.cpp NuReco.cpp Plugin.cpp
-  Processor.cpp)
+  Processor.cpp TTRecoInputs.cpp)
     list(APPEND LIBRARY_SOURCES "${PROJECT_SOURCE_DIR}/src/${file}")
 endforeach(file)
 
@@ -33,6 +33,9 @@ include_directories(${Boost_INCLUDE_DIR})
 add_library(htt SHARED ${LIBRARY_SOURCES})
 target_link_libraries(htt ${DELPHES_LIBRARIES} ${ROOT_LIBRARIES} ${Boost_FILESYSTEM_LIBRARY})
 
-# Main program
+# Programs
 add_executable(htt-tuples "prog/htt-tuples.cpp")
 target_link_libraries(htt-tuples htt)
+
+add_executable(reco-inputs "prog/reco-inputs.cpp")
+target_link_libraries(reco-inputs htt)
