@@ -34,6 +34,13 @@ public:
     template<typename InputIt>
     Processor(InputIt const &inputFilesBegin, InputIt const &inputFilesEnd);
     
+    /**
+     * Constructor from a glob-like pattern that defines paths to input files
+     * 
+     * Wildcards '*' and '?' are supported, and they are only allowed in the filename path.
+     */
+    Processor(std::string const &fileMask);
+    
 public:
     /**
      * Creates a ROOT object (such as TTree or TH1D) in the output file

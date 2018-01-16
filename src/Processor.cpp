@@ -6,6 +6,68 @@
 
 #include <algorithm>
 #include <iostream>
+#include <regex>
+
+
+Processor::Processor(std::string const &fileMask_):
+    createOutputFile(false)
+{
+    namespace fs = boost::filesystem;
+    
+    // Split the mask into directory and filename parts and make sure that the former one do not
+    //contain wildcards
+    fs::path const fileMask(fileMask_);
+    fs::path const directory(fileMask.parent_path());
+    
+    if (directory.string().find_first_of("*?") != std::string::npos)
+    {
+        std::ostringstream message;
+        message << "Processor::Processor: Directory part of pattern \"" << directory.string() <<
+          "\" contains wildcards, which is not supported.";
+        throw std::runtime_error(message.str());
+    }
+    
+    
+    // Make sure the directory exists
+    if (not fs::exists(directory) or not fs::is_directory(directory))
+    {
+        std::ostringstream message;
+        message << "Processor::Processor: Directory \"" << directory.string() <<
+          "\" does not exist.";
+        throw std::runtime_error(message.str());
+    }
+    
+    
+    // Convert the filename pattern into a regular expression. In order to do it, escape all
+    //special characters except for '*' and '?' and prepend these two with dots.
+    std::string filenameMask(fileMask.filename().string());
+    
+    std::regex escapeRegex(R"(\.|\^|\$|\||\(|\)|\[|\]|\{|\}|\+|\\)");
+    filenameMask = std::regex_replace(filenameMask, escapeRegex, "\\$&");
+    
+    std::regex prependRegex(R"(\?|\*)");
+    filenameMask = std::regex_replace(filenameMask, prependRegex, ".$&");
+    
+    std::regex filenameRegex(filenameMask);
+    
+    
+    // Check all files in the directory against the constructed regular expression
+    for (fs::directory_iterator dirIt(directory); dirIt != fs::directory_iterator(); ++dirIt)
+    {
+        if (not fs::is_regular_file(dirIt->status()))
+            continue;
+        
+        if (std::regex_match(dirIt->path().filename().string(), filenameRegex))
+            inputFiles.push(dirIt->path().string());
+    }
+    
+    if (inputFiles.empty())
+    {
+        std::ostringstream message;
+        message << "Processor::Processor: Found no file matching mask \"" << fileMask_ << "\".";
+        throw std::runtime_error(message.str());
+    }
+}
 
 
 void Processor::SetOutput(std::string const outputDir_)
