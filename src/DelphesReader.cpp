@@ -91,7 +91,7 @@ MissingET const &DelphesReader::GetMissPt() const
 
 double DelphesReader::GetWeight() const
 {
-    return dynamic_cast<LHEFEvent *>(bfEvents->At(0))->Weight;
+    return dynamic_cast<HepMCEvent *>(bfEvents->At(0))->Weight;
 }
 
 
