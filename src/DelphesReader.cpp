@@ -8,11 +8,14 @@
 #include <cmath>
 
 
-DelphesReader::DelphesReader():
+DelphesReader::DelphesReader(unsigned readOptions):
     bfEvents(nullptr),
     bfElectrons(nullptr), bfMuons(nullptr), bfJets(nullptr), bfMETs(nullptr),
+    bfLHEParticles(nullptr),
     jetPtThreshold(20.), jetEtaThreshold(2.4)
-{}
+{
+    readLHEParticles = ((readOptions & LHE_PARTICLES) == LHE_PARTICLES);
+}
 
 
 DelphesReader::~DelphesReader()
@@ -22,6 +25,8 @@ DelphesReader::~DelphesReader()
     delete bfMuons;
     delete bfJets;
     delete bfMETs;
+    
+    delete bfLHEParticles;
 }
 
 
@@ -39,12 +44,18 @@ void DelphesReader::BeginFile(TFile *inputFile)
     for (auto const &mask: {"Event.Weight", "Electron.*", "Muon.*", "Jet.*", "MissingET.*"})
         tree->SetBranchStatus(mask, true);
     
+    if (readLHEParticles)
+        tree->SetBranchStatus("ParticleLHEF.*", true);
+    
     
     tree->SetBranchAddress("Event", &bfEvents);
     tree->SetBranchAddress("Electron", &bfElectrons);
     tree->SetBranchAddress("Muon", &bfMuons);
     tree->SetBranchAddress("Jet", &bfJets);
     tree->SetBranchAddress("MissingET", &bfMETs);
+    
+    if (readLHEParticles)
+        tree->SetBranchAddress("ParticleLHEF", &bfLHEParticles);
 }
 
 
@@ -63,6 +74,12 @@ std::vector<Muon> const &DelphesReader::GetMuons() const
 std::vector<Jet> const &DelphesReader::GetJets() const
 {
     return jets;
+}
+
+
+std::vector<GenParticle> const &DelphesReader::GetLHEParticles() const
+{
+    return lheParticles;
 }
 
 
@@ -90,6 +107,8 @@ Plugin::EventOutcome DelphesReader::ProcessEventToOutcome()
     muons.clear();
     jets.clear();
     
+    lheParticles.clear();
+    
     tree->GetEntry(iEvent);
     ++iEvent;
     
@@ -110,6 +129,12 @@ Plugin::EventOutcome DelphesReader::ProcessEventToOutcome()
             jets.emplace_back(*j);
     }
     
+    if (readLHEParticles)
+    {
+        for (int i = 0; i < bfLHEParticles->GetEntries(); ++i)
+            lheParticles.emplace_back(*dynamic_cast<GenParticle *>(bfLHEParticles->At(i)));
+    }
+    
     
     // Make sure collections are ordered in pt
     auto comp = [](auto const &c1, auto const &c2){return (c1.PT > c2.PT);};
@@ -117,6 +142,9 @@ Plugin::EventOutcome DelphesReader::ProcessEventToOutcome()
     std::sort(electrons.begin(), electrons.end(), comp);
     std::sort(muons.begin(), muons.end(), comp);
     std::sort(jets.begin(), jets.end(), comp);
+    
+    if (readLHEParticles)
+        std::sort(lheParticles.begin(), lheParticles.end(), comp);
     
     
     return Plugin::EventOutcome::Ok;
