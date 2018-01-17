@@ -51,7 +51,7 @@ public:
     /// Sets non-owning pointer to an instance of Processor to which this plugin is attached
     void SetProcessor(Processor *processor);
     
-private:
+protected:
     /**
      * Non-owning pointer to Processor to which this plugin is attached
      * 

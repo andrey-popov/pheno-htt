@@ -46,8 +46,9 @@ public:
      * Creates a ROOT object (such as TTree or TH1D) in the output file
      * 
      * A ROOT object is created in the given in-file directory (use "" for the root). Arguments
-     * are directly forwarded to the constructor. The returned object is owned by the caller.
-     * Objects must be recreated whenever a new input file is opened.
+     * are directly forwarded to the constructor. The returned object is associated with the output
+     * file (with its implications for the ownership). Objects must be recreated whenever a new
+     * input file is opened.
      */
     template<typename T, typename ... Args>
     T *Book(std::string const &inFileDirectory, Args const &... args);

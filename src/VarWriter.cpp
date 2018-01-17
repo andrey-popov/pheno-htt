@@ -1,0 +1,35 @@
+#include <VarWriter.hpp>
+
+#include <Processor.hpp>
+
+
+VarWriter::VarWriter(DelphesReader const *reader_, TTReco const *ttReco_):
+    reader(reader_), ttReco(ttReco_)
+{}
+
+
+void VarWriter::BeginFile(TFile *)
+{
+    outTree = processor->Book<TTree>("", "Vars", "Observables computed for tt system");
+    
+    outTree->Branch("Weight", &bfWeight);
+    outTree->Branch("PtTopLep", &bfPtTopLep);
+    outTree->Branch("PtTopHad", &bfPtTopHad);
+    outTree->Branch("MassTT", &bfMassTT);
+}
+
+
+bool VarWriter::ProcessEvent()
+{
+    bfWeight = reader->GetWeight();
+    
+    TLorentzVector const p4TopLep = ttReco->GetTopLepP4();
+    TLorentzVector const p4TopHad = ttReco->GetTopHadP4();
+    
+    bfPtTopLep = p4TopLep.Pt();
+    bfPtTopHad = p4TopHad.Pt();
+    bfMassTT = (p4TopLep + p4TopHad).M();
+    
+    outTree->Fill();
+    return true;
+}

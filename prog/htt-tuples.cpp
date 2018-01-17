@@ -1,6 +1,8 @@
 #include <DelphesReader.hpp>
 #include <LJetsSelection.hpp>
 #include <Processor.hpp>
+#include <TTReco.hpp>
+#include <VarWriter.hpp>
 
 #include <iostream>
 
@@ -18,12 +20,19 @@ int main(int argc, char **argv)
     
     
     Processor processor(argv + 1, argv + argc);
+    processor.SetOutput("output");
     
     DelphesReader reader;
     processor.RegisterPlugin(&reader);
     
     LJetsSelection selection(&reader);
     processor.RegisterPlugin(&selection);
+    
+    TTReco ttReco(&reader, &selection, "data/tt-reco.root");
+    processor.RegisterPlugin(&ttReco);
+    
+    VarWriter writer(&reader, &ttReco);
+    processor.RegisterPlugin(&writer);
     
     processor.Run();
     
