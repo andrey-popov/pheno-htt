@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <stdexcept>
 
 
 DelphesReader::DelphesReader(unsigned readOptions):
@@ -79,6 +80,10 @@ std::vector<Jet> const &DelphesReader::GetJets() const
 
 std::vector<GenParticle> const &DelphesReader::GetLHEParticles() const
 {
+    if (not readLHEParticles)
+        throw std::runtime_error("DelphesReader::GetLHEParticles: Reading of LHE particles "
+          "has not been requested");
+    
     return lheParticles;
 }
 
