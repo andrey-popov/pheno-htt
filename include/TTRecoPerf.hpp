@@ -16,11 +16,10 @@
  * 
  * An auxiliary plugin to evaluate performance of tt reconstruction
  * 
- * This plugin selects reconstructable tt -> l+jets events and fills two TProfiles, both in bins of
- * parton-level mtt. The first one is filled with relative bias in reconstructed mtt (and bin
- * uncertainties quantify the resolution). The second is filled with 1 or 0 depending on whether
- * the four jets have been identified correctly; the mean values then give the reconstruction
- * efficiency. The profiles are computed with all input files and stored in a signle ROOT file.
+ * This plugin selects reconstructable tt -> l+jets events and constructs histograms with bias and
+ * resolution of reconstructed mtt and the efficiency of identification of all four jets. All
+ * quantities are computed in bins of parton-level mtt. The histograms are constructed from all
+ * input files and stored in a single ROOT file.
  */
 class TTRecoPerf: public AnalysisPlugin
 {
@@ -58,6 +57,9 @@ private:
     
     /// Profiles of mtt bias and efficiency of jet identification
     TProfile profBias, profEfficiency;
+    
+    /// Profile of squared mtt bias, which is needed to compute mtt resolution
+    TProfile profBias2;
     
     /// Event counters for sanity checks
     unsigned long long nVisited, nTargeted, nReconstructable;

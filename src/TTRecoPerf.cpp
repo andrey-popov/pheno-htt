@@ -1,5 +1,6 @@
 #include <TTRecoPerf.hpp>
 
+#include <TH1D.h>
 #include <TVector2.h>
 
 #include <array>
@@ -18,15 +19,33 @@ TTRecoPerf::TTRecoPerf(DelphesReader const *reader_, TTReco const *ttReco_,
       12, 350., 1000.),
     profEfficiency("Efficiency", ";m_{tt}^{true} [GeV];Eff. of identification of all jets",
       12, 350., 1000.),
+    profBias2(profBias),
     nVisited(0), nTargeted(0), nReconstructable(0)
 {
     profBias.SetDirectory(&outputFile);
     profEfficiency.SetDirectory(&outputFile);
+    
+    profBias2.SetDirectory(nullptr);
 }
 
 
 TTRecoPerf::~TTRecoPerf()
 {
+    // Compute mtt resolution and store it in a histogram
+    TH1D histResolution("Resolution", ";m_{tt}^{true} [GeV];Relative m_{tt} resolution",
+      12, 350., 1000.);
+    
+    for (int bin = 0; bin <= profBias.GetNbinsX() + 1; ++bin)
+    {
+        histResolution.SetBinContent(bin, std::sqrt(profBias2.GetBinContent(bin) -
+          std::pow(profBias.GetBinContent(bin), 2)));
+        histResolution.SetBinError(bin, 0.);
+    }
+    
+    histResolution.SetDirectory(&outputFile);
+    
+    
+    // Save all results
     outputFile.Write();
     outputFile.Close();
 }
@@ -156,11 +175,13 @@ bool TTRecoPerf::ProcessEvent()
     
     
     // Evaluate performance
+    double const weight = reader->GetWeight();
     double const trueMtt = (particles.at(bLep->M1).P4() + particles.at(bHad->M1).P4()).M();
     double const recoMtt = (ttReco->GetTopLepP4() + ttReco->GetTopHadP4()).M();
-    double const weight = reader->GetWeight();
     
-    profBias.Fill(trueMtt, recoMtt / trueMtt - 1., weight);
+    double const bias = recoMtt / trueMtt - 1.;
+    profBias.Fill(trueMtt, bias, weight);
+    profBias2.Fill(trueMtt, bias * bias, weight);
     
     bool const matched = (jetBLep == &ttReco->GetJet(TTReco::DecayJet::bTopLep) and
       jetBHad == &ttReco->GetJet(TTReco::DecayJet::bTopHad) and
