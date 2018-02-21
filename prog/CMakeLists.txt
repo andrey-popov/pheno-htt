@@ -6,3 +6,6 @@ target_link_libraries(reco-inputs htt)
 
 add_executable(reco-performance reco-performance.cpp)
 target_link_libraries(reco-performance htt)
+
+add_executable(htt-tuples-gen htt-tuples-gen.cpp)
+target_link_libraries(htt-tuples-gen htt)

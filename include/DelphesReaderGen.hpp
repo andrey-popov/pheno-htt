@@ -9,30 +9,16 @@ class TTree;
 
 
 /**
- * \class DelphesReader
+ * \class DelphesReaderGen
  * 
- * A plugin to read Delphes files
+ * A plugin to read generator-level information from Delphes files. It is meant to be a drop-in
+ * replacement of class DelphesReader when the reconstruction has not been performed.
  */
-class DelphesReader: public DelphesReaderBase
+class DelphesReaderGen: public DelphesReaderBase
 {
 public:
-    /// Flags to request reading of additional data
-    enum ReadOptions
-    {
-        LHE_PARTICLES = 0x1
-    };
-    
-public:
-    /**
-     * Constructor from a bit mask
-     * 
-     * The bit mask specifies the data to read. Standard reconstructed objects and nominal event
-     * weight are always read, and the mask allows to request additional data. Flags are defined by
-     * enumeration ReadOptions.
-     */
-    DelphesReader(unsigned readOptions = 0);
-    
-    virtual ~DelphesReader();
+    DelphesReaderGen();
+    virtual ~DelphesReaderGen();
     
 public:
     /// Sets up reading of Delphes tree
@@ -51,11 +37,7 @@ public:
      */
     virtual std::vector<Jet> const &GetJets() const override;
     
-    /**
-     * Returns particles from the LHE record
-     * 
-     * Collection is not empty only if reading these data has been requested explicitly.
-     */
+    /// Returns particles from the LHE record
     virtual std::vector<GenParticle> const &GetLHEParticles() const override;
     
     /// Returns missing pt
@@ -68,9 +50,6 @@ public:
     virtual EventOutcome ProcessEventToOutcome() override;
     
 private:
-    /// Flag showing whether LHE particles should be read
-    bool readLHEParticles;
-    
     /// Non-owning pointer to Delphes tree
     TTree *tree;
     
@@ -80,17 +59,14 @@ private:
     /// Buffer to read global generator-level information about an event
     TClonesArray *bfEvents;
     
-    TClonesArray *bfElectrons;
-    std::vector<Electron> electrons;
-    
-    TClonesArray *bfMuons;
-    std::vector<Muon> muons;
+    TClonesArray *bfLHEParticles;
+    std::vector<GenParticle> lheParticles;
     
     TClonesArray *bfJets;
     std::vector<Jet> jets;
     
     TClonesArray *bfMETs;
     
-    TClonesArray *bfLHEParticles;
-    std::vector<GenParticle> lheParticles;
+    std::vector<Electron> electrons;
+    std::vector<Muon> muons;
 };

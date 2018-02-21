@@ -15,20 +15,8 @@
 class DelphesReaderBase: public Plugin
 {
 public:
-    /// Flags to request reading of additional data
-    enum ReadOptions
-    {
-        LHE_PARTICLES = 0x1
-    };
-    
-public:
-    /**
-     * Constructor from a bit mask
-     * 
-     * The mask allows to request reading of additional data (to be implemented in a derived
-     * class). Supported flags are defined by enumeration ReadOptions.
-     */
-    DelphesReaderBase(unsigned readOptions = 0);
+    /// Constructor that defines kinematic selection applied to jets
+    DelphesReaderBase(double jetPtThreshold = 20., double jetEtaThreshold = 2.4);
     
     virtual ~DelphesReaderBase() = default;
     
@@ -60,9 +48,6 @@ public:
     virtual double GetWeight() const = 0;
     
 protected:
-    /// Flag showing whether LHE particles should be read
-    bool readLHEParticles;
-    
     /// Kinematic selection applied to jets
     double jetPtThreshold, jetEtaThreshold;
 };
