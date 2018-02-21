@@ -3,6 +3,7 @@
  */
 
 #include <DelphesReaderGen.hpp>
+#include <LJetsLHEFilter.hpp>
 #include <LJetsSelection.hpp>
 #include <Processor.hpp>
 #include <SmearMttWriter.hpp>
@@ -27,6 +28,9 @@ int main(int argc, char **argv)
     
     DelphesReaderGen reader;
     processor.RegisterPlugin(&reader);
+    
+    LJetsLHEFilter lheFilter(&reader);
+    processor.RegisterPlugin(&lheFilter);
     
     LJetsSelection selection(&reader);
     processor.RegisterPlugin(&selection);
