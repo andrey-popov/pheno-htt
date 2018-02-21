@@ -1,11 +1,5 @@
-# CMake files and directories
-CMakeCache.txt
-cmake_install.cmake
-Makefile
-CMakeFiles/
-
-# Directories with binaries
 bin/
+build/
 lib/
 
 # Prerequisites

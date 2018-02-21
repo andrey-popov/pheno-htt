@@ -1,44 +1,23 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(htt)
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 
 
-include_directories("include")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wextra -O2")
+include_directories("include")
 
 
-# Sources for the main library
-set(LIBRARY_SOURCES "")
-foreach(file AnalysisPlugin.cpp DelphesReader.cpp LJetsSelection.cpp NuReco.cpp Plugin.cpp
-  Processor.cpp TTReco.cpp TTRecoInputs.cpp TTRecoPerf.cpp VarWriter.cpp)
-    list(APPEND LIBRARY_SOURCES "${PROJECT_SOURCE_DIR}/src/${file}")
-endforeach(file)
-
-
-# External dependencies
 set(DELPHES_LIBRARIES "$ENV{DELPHES_ROOT}/libDelphes.so")
 include_directories("$ENV{DELPHES_ROOT}" "$ENV{DELPHES_ROOT}/external")
 
-find_package(ROOT)
+find_package(ROOT REQUIRED)
 include_directories(${ROOT_INCLUDE_DIRS})
 
-find_package(Boost 1.63.0 COMPONENTS filesystem REQUIRED)
+find_package(Boost 1.63 COMPONENTS filesystem REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 
 
-# Main library
-add_library(htt SHARED ${LIBRARY_SOURCES})
-target_link_libraries(htt ${DELPHES_LIBRARIES} ${ROOT_LIBRARIES} ${Boost_FILESYSTEM_LIBRARY})
-
-# Programs
-add_executable(htt-tuples "prog/htt-tuples.cpp")
-target_link_libraries(htt-tuples htt)
-
-add_executable(reco-inputs "prog/reco-inputs.cpp")
-target_link_libraries(reco-inputs htt)
-
-add_executable(reco-performance "prog/reco-performance.cpp")
-target_link_libraries(reco-performance htt)
+add_subdirectory(src)
+add_subdirectory(prog)
