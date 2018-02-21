@@ -11,7 +11,7 @@
 #include <stdexcept>
 
 
-TTReco::TTReco(DelphesReader *reader_, LJetsSelection *selector_,
+TTReco::TTReco(DelphesReaderBase const *reader_, LJetsSelection const *selector_,
   std::string const &likelihoodFileName):
     reader(reader_), selector(selector_),
     nuReco(173., 80.419002),  // Masses from param_card

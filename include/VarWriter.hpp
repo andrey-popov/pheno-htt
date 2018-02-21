@@ -2,7 +2,7 @@
 
 #include <AnalysisPlugin.hpp>
 
-#include <DelphesReader.hpp>
+#include <DelphesReaderBase.hpp>
 #include <TTReco.hpp>
 
 #include <TTree.h>
@@ -16,7 +16,7 @@
 class VarWriter: public AnalysisPlugin
 {
 public:
-    VarWriter(DelphesReader const *reader, TTReco const *ttReco);
+    VarWriter(DelphesReaderBase const *reader, TTReco const *ttReco);
     
 public:
     virtual void BeginFile(TFile *) override;
@@ -29,7 +29,7 @@ private:
     
 private:
     /// Non-owning pointer to reader plugin
-    DelphesReader const *reader;
+    DelphesReaderBase const *reader;
     
     /// Non-owning pointer to plugin that performs tt reconstruction
     TTReco const *ttReco;

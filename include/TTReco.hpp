@@ -2,7 +2,7 @@
 
 #include <AnalysisPlugin.hpp>
 
-#include <DelphesReader.hpp>
+#include <DelphesReaderBase.hpp>
 #include <NuReco.hpp>
 
 #include <string>
@@ -42,7 +42,8 @@ public:
     
 public:
     /// Constructor from pointers to required plugins and a path to file that defines likelihood
-    TTReco(DelphesReader *reader, LJetsSelection *selector, std::string const &likelihoodFile);
+    TTReco(DelphesReaderBase const *reader, LJetsSelection const *selector,
+      std::string const &likelihoodFile);
     
 public:
     /**
@@ -102,10 +103,10 @@ private:
     
 private:
     /// Non-owning pointer to reader plugin
-    DelphesReader *reader;
+    DelphesReaderBase const *reader;
     
     /// Non-owning pointer to plugin that performs event selection
-    LJetsSelection *selector;
+    LJetsSelection const *selector;
     
     /// Object that performs reconstruction of neutrino
     NuReco nuReco;

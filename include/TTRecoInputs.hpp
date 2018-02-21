@@ -2,7 +2,7 @@
 
 #include <AnalysisPlugin.hpp>
 
-#include <DelphesReader.hpp>
+#include <DelphesReaderBase.hpp>
 #include <NuReco.hpp>
 
 #include <string>
@@ -31,7 +31,8 @@ class TTRecoInputs: public AnalysisPlugin
 {
 public:
     /// Constructor with a name for the output file
-    TTRecoInputs(DelphesReader *reader, LJetsSelection *selector, std::string const &outFileName);
+    TTRecoInputs(DelphesReaderBase const *reader, LJetsSelection const *selector,
+      std::string const &outFileName);
     
     ~TTRecoInputs();
     
@@ -53,10 +54,10 @@ private:
     
 private:
     /// Non-owning pointer to reader plugin
-    DelphesReader *reader;
+    DelphesReaderBase const *reader;
     
     /// Non-owning pointer to a plugin that performs event selection
-    LJetsSelection *selector;
+    LJetsSelection const *selector;
     
     /// Output ROOT file
     TFile outputFile;

@@ -10,13 +10,11 @@
 
 
 DelphesReader::DelphesReader(unsigned readOptions):
+    DelphesReaderBase(readOptions),
     bfEvents(nullptr),
     bfElectrons(nullptr), bfMuons(nullptr), bfJets(nullptr), bfMETs(nullptr),
-    bfLHEParticles(nullptr),
-    jetPtThreshold(20.), jetEtaThreshold(2.4)
-{
-    readLHEParticles = ((readOptions & LHE_PARTICLES) == LHE_PARTICLES);
-}
+    bfLHEParticles(nullptr)
+{}
 
 
 DelphesReader::~DelphesReader()

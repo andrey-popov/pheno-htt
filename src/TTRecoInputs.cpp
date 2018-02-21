@@ -12,7 +12,7 @@
 #include <utility>
 
 
-TTRecoInputs::TTRecoInputs(DelphesReader *reader_, LJetsSelection *selector_,
+TTRecoInputs::TTRecoInputs(DelphesReaderBase const *reader_, LJetsSelection const *selector_,
   std::string const &outFileName):
     reader(reader_), selector(selector_),
     outputFile(outFileName.c_str(), "recreate"),

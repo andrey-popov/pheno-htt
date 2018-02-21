@@ -3,7 +3,7 @@
 #include <Processor.hpp>
 
 
-VarWriter::VarWriter(DelphesReader const *reader_, TTReco const *ttReco_):
+VarWriter::VarWriter(DelphesReaderBase const *reader_, TTReco const *ttReco_):
     reader(reader_), ttReco(ttReco_),
     storePartonLevel(false)
 {}

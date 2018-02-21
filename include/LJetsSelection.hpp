@@ -2,7 +2,7 @@
 
 #include <AnalysisPlugin.hpp>
 
-#include <DelphesReader.hpp>
+#include <DelphesReaderBase.hpp>
 
 #include <TLorentzVector.h>
 
@@ -20,7 +20,7 @@ class LJetsSelection: public AnalysisPlugin
 {
 public:
     /// Constructor from a pointer to reader plugin
-    LJetsSelection(DelphesReader *reader);
+    LJetsSelection(DelphesReaderBase const *reader);
     
 public:
     /// Returns four-momentum of the only tight lepton in the current accepted event
@@ -34,7 +34,7 @@ public:
     
 private:
     /// Non-owning pointer to reader plugin
-    DelphesReader *reader;
+    DelphesReaderBase const *reader;
     
     /// Thresholds for electrons
     double ptEleTight, ptEleLoose;

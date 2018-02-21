@@ -2,7 +2,7 @@
 
 #include <AnalysisPlugin.hpp>
 
-#include <DelphesReader.hpp>
+#include <DelphesReaderBase.hpp>
 #include <TTReco.hpp>
 
 #include <string>
@@ -25,7 +25,8 @@ class TTRecoPerf: public AnalysisPlugin
 {
 public:
     /// Constructor with a name for the output file
-    TTRecoPerf(DelphesReader const *reader, TTReco const *ttReco, std::string const &outFileName);
+    TTRecoPerf(DelphesReaderBase const *reader, TTReco const *ttReco,
+      std::string const &outFileName);
     
     ~TTRecoPerf();
     
@@ -47,7 +48,7 @@ private:
     
 private:
     /// Non-owning pointer to reader plugin
-    DelphesReader const *reader;
+    DelphesReaderBase const *reader;
     
     /// Non-owning pointer to a plugin that performs tt reconstruction
     TTReco const *ttReco;

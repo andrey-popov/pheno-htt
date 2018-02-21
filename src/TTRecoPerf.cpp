@@ -11,7 +11,7 @@
 #include <utility>
 
 
-TTRecoPerf::TTRecoPerf(DelphesReader const *reader_, TTReco const *ttReco_,
+TTRecoPerf::TTRecoPerf(DelphesReaderBase const *reader_, TTReco const *ttReco_,
   std::string const &outFileName):
     reader(reader_), ttReco(ttReco_),
     outputFile(outFileName.c_str(), "recreate"),

@@ -1,10 +1,6 @@
 #pragma once
 
-#include <Plugin.hpp>
-
-#include <classes/DelphesClasses.h>
-
-#include <vector>
+#include <DelphesReaderBase.hpp>
 
 
 class TClonesArray;
@@ -17,14 +13,10 @@ class TTree;
  * 
  * A plugin to read Delphes files
  */
-class DelphesReader: public Plugin
+class DelphesReader: public DelphesReaderBase
 {
 public:
-    /// Flags to request reading of additional data
-    enum ReadOptions
-    {
-        LHE_PARTICLES = 0x1
-    };
+    using DelphesReaderBase::ReadOptions;
     
 public:
     /**
@@ -36,37 +28,37 @@ public:
      */
     DelphesReader(unsigned readOptions = 0);
     
-    ~DelphesReader();
+    virtual ~DelphesReader();
     
 public:
     /// Sets up reading of Delphes tree
     virtual void BeginFile(TFile *inputFile) override;
     
     /// Returns collection of electrons
-    std::vector<Electron> const &GetElectrons() const;
+    virtual std::vector<Electron> const &GetElectrons() const override;
     
     /// Returns collection of muons
-    std::vector<Muon> const &GetMuons() const;
+    virtual std::vector<Muon> const &GetMuons() const override;
     
     /**
      * Returns collection of jets
      * 
      * Only jets that meet a kinematic selection are included in the collection.
      */
-    std::vector<Jet> const &GetJets() const;
+    virtual std::vector<Jet> const &GetJets() const override;
     
     /**
      * Returns particles from the LHE record
      * 
      * Collection is not empty only if reading these data has been requested explicitly.
      */
-    std::vector<GenParticle> const &GetLHEParticles() const;
+    virtual std::vector<GenParticle> const &GetLHEParticles() const override;
     
     /// Returns missing pt
-    MissingET const &GetMissPt() const;
+    virtual MissingET const &GetMissPt() const override;
     
     /// Returns nominal per-event weight
-    double GetWeight() const;
+    virtual double GetWeight() const override;
     
     /// Reads next event from the input file
     virtual EventOutcome ProcessEventToOutcome() override;
@@ -77,9 +69,6 @@ private:
     
     /// Total number of events in the tree and index of the current event
     unsigned long long numEvents, iEvent;
-    
-    /// Flag showing whether LHE particles should be read
-    bool readLHEParticles;
     
     /// Buffer to read global generator-level information about an event
     TClonesArray *bfEvents;
@@ -97,7 +86,4 @@ private:
     
     TClonesArray *bfLHEParticles;
     std::vector<GenParticle> lheParticles;
-    
-    /// Kinematic selection applied to jets
-    double jetPtThreshold, jetEtaThreshold;
 };
