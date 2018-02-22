@@ -169,11 +169,13 @@ Plugin::EventOutcome DelphesReaderGen::ProcessEventToOutcome()
     {
         Jet *j = dynamic_cast<Jet *>(bfJets->At(i));
         
-        if (j->PT > jetPtThreshold and std::abs(j->Eta) < jetEtaThreshold)
-            jets.emplace_back(std::move(*j));
+        if (j->PT < jetPtThreshold or std::abs(j->Eta) > jetEtaThreshold)
+            continue;
         
         if (CheckOverlap(*j, electrons) or CheckOverlap(*j, muons))
             continue;
+        
+        jets.emplace_back(std::move(*j));
     }
     
     
