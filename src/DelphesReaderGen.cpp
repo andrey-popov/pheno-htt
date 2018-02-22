@@ -175,6 +175,13 @@ Plugin::EventOutcome DelphesReaderGen::ProcessEventToOutcome()
         if (CheckOverlap(*j, electrons) or CheckOverlap(*j, muons))
             continue;
         
+        // There is a memory leak in TRefArray [1], and class Jet contains members of this type.
+        //The leak would occur when the collection of jets is sorted below. To prevent it, clear
+        //the arrays completely.
+        //[1] https://sft.its.cern.ch/jira/browse/ROOT-7589
+        j->Constituents.Delete();
+        j->Particles.Delete();
+        
         jets.emplace_back(std::move(*j));
     }
     
