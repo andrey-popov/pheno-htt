@@ -1,0 +1,8 @@
+# MadGraph script to produce a MadEvent directory for SM tt -> l+jets
+
+import model sm
+
+generate p p > t t~, (t > b w+, w+ > l+ vl), (t~ > b~ w-, w- > j j)
+add process p p > t t~, (t > b w+, w+ > j j), (t~ > b~ w-, w- > l- vl~)
+
+output SM-tt
