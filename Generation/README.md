@@ -28,7 +28,8 @@ Create scripts that will, starting from the MadEvent directory, generate SM tt e
 ./writeConfigs.py SM-tt --mt 173.5 -o configs/ttbar_mt-up
 ./writeConfigs.py SM-tt --mt 172.5 -o configs/ttbar_mt-down
 ```
-For each mass 5M events will be produced, with 100k events per script. The generation is then launched with
+For each mass 5M events will be produced, with 100k events per script.
+These are then launched with
 ```sh
 ./runMadGraph.sh configs/*
 ```
@@ -36,3 +37,28 @@ For each mass 5M events will be produced, with 100k events per script. The gener
 Produced LHE events contain alternative weights for systematic variations in the scales and PDF.
 
 For convenience an example MadGraph banner is [provided](LHE/ttbar_banner.txt) in the repository.
+
+
+## Showering
+
+Perform showering and hadronization of produced LHE files.
+
+Showering and hadronization are done with [Pythia 8](http://home.thep.lu.se/~torbjorn/Pythia.html) program, using the default tune Monash 2013.
+For convenience, it is run inside [Delphes](https://cp3.irmp.ucl.ac.be/projects/delphes) framework, which also clusters stable particles into jets (using the [FastJet](http://fastjet.fr) package) and saves events in a binary format.
+A [minimalistic configuration](Showering/delphes_card.tcl) for Delphes is used, which only saves in the output file LHE-level particles and jets.
+
+Dependencies:
+ * [ROOT](root.cern.ch) 6.10/04.
+ * [Pythia](http://home.thep.lu.se/~torbjorn/Pythia.html) 8.230.
+ * [Delphes](https://cp3.irmp.ucl.ac.be/projects/delphes) 3.4.1 built with support of Pythia.
+ * Python 3.6.
+ 
+ Process LHE files with the following commands:
+ ```sh
+ ./runDelphes.py ../LHE/SM-tt/Events/ttbar_* -o SM-tt
+ ./runDelphes.py ../LHE/SM-tt/Events/ttbar_[0-9]* --pythia-config pythiaConfig_FSR-up.cmnd -o SM-tt_FSR-up
+ ./runDelphes.py ../LHE/SM-tt/Events/ttbar_[0-9]* --pythia-config pythiaConfig_FSR-down.cmnd -o SM-tt_FSR-down
+ ```
+Here [runDelphes.py](Showering/runDelphes.py) is a convenience script that runs multiple copies of the `DelphesPythia8` executable in parallel and takes care of unpacking compressed LHE files and dealing with temporary files.
+LHE files with nominal m<sub>t</sub> are processed three times with the renormalization scale used in showering set to its nominal value or scaled by factors 0.5 and 2.
+After the generation is done, log files can be removed and Delphes files from directories `SM-tt_FSR-*` can be renamed and moved into `SM-tt` by running script `cleanup.sh`.
