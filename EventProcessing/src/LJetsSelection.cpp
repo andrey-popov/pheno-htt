@@ -5,8 +5,8 @@
 
 LJetsSelection::LJetsSelection(DelphesReaderBase const *reader_):
     reader(reader_),
-    ptEleTight(25.), ptEleLoose(10.),
-    ptMuTight(25.), ptMuLoose(10.),
+    ptEleTight(30.), ptEleLoose(10.),
+    ptMuTight(30.), ptMuLoose(10.),
     mtWThreshold(0.)
 {}
 
@@ -30,7 +30,7 @@ bool LJetsSelection::ProcessEvent()
     
     for (auto const &e: reader->GetElectrons())
     {
-        if (e.PT < ptEleLoose or std::abs(e.Eta) > 2.5)
+        if (e.PT < ptEleLoose or std::abs(e.Eta) > 2.4)
             continue;
         
         ++nLoose;
