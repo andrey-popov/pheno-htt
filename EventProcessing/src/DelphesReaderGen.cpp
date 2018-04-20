@@ -34,39 +34,14 @@ bool CheckOverlap(T const &obj, C const &collection, double dR = 0.4)
 
 DelphesReaderGen::DelphesReaderGen():
     DelphesReaderBase(),
-    bfEvents(nullptr),
-    bfLHEParticles(nullptr), bfJets(nullptr), bfMETs(nullptr)
+    bfJets(nullptr), bfMETs(nullptr)
 {}
 
 
 DelphesReaderGen::~DelphesReaderGen()
 {
-    delete bfEvents;
-    delete bfLHEParticles;
     delete bfJets;
     delete bfMETs;
-}
-
-
-void DelphesReaderGen::BeginFile(TFile *inputFile)
-{
-    // Set up reading of Delphes tree. It is important that all buffers are initialized with null
-    //pointers (which instructs TTree to allocate memory for them).
-    tree = dynamic_cast<TTree *>(inputFile->Get("Delphes"));
-    
-    numEvents = tree->GetEntries();
-    iEvent = 0;
-    
-    tree->SetBranchStatus("*", false);
-    
-    for (auto const &mask: {"Event.Weight", "ParticleLHEF.*", "GenJet.*", "GenMissingET.*"})
-        tree->SetBranchStatus(mask, true);
-    
-    
-    tree->SetBranchAddress("Event", &bfEvents);
-    tree->SetBranchAddress("ParticleLHEF", &bfLHEParticles);
-    tree->SetBranchAddress("GenJet", &bfJets);
-    tree->SetBranchAddress("GenMissingET", &bfMETs);
 }
 
 
@@ -88,48 +63,22 @@ std::vector<Jet> const &DelphesReaderGen::GetJets() const
 }
 
 
-std::vector<GenParticle> const &DelphesReaderGen::GetLHEParticles() const
-{
-    return lheParticles;
-}
-
-
 MissingET const &DelphesReaderGen::GetMissPt() const
 {
     return *dynamic_cast<MissingET *>(bfMETs->At(0));
 }
 
 
-double DelphesReaderGen::GetWeight() const
+void DelphesReaderGen::ReadEvent()
 {
-    return dynamic_cast<HepMCEvent *>(bfEvents->At(0))->Weight;
-}
-
-
-Plugin::EventOutcome DelphesReaderGen::ProcessEventToOutcome()
-{
-    // Check if there are events remaining in the input tree
-    if (iEvent == numEvents)
-        return Plugin::EventOutcome::NoEvents;
-    
-    
-    // Read the next event
-    electrons.clear();
-    muons.clear();
-    jets.clear();
-    
-    lheParticles.clear();
-    
-    tree->GetEntry(iEvent);
-    ++iEvent;
-    
-    
-    // Copy LHE particles from collections into vectors to avoid dealing with TCloneArrays
-    for (int i = 0; i < bfLHEParticles->GetEntries(); ++i)
-        lheParticles.emplace_back(*dynamic_cast<GenParticle *>(bfLHEParticles->At(i)));
+    // Read objects provided by the base class
+    DelphesReaderBase::ReadEvent();
     
     
     // Fill collections of leptons with muons and electrons from LHE. Only some fields are set.
+    electrons.clear();
+    muons.clear();
+    
     for (auto const &p: lheParticles)
     {
         if (std::abs(p.PID) == 11)
@@ -165,6 +114,8 @@ Plugin::EventOutcome DelphesReaderGen::ProcessEventToOutcome()
     
     // Copy jets from the read buffer. Only keep those that pass the kinematic selection and do not
     //overlap with the leptons.
+    jets.clear();
+    
     for (int i = 0; i < bfJets->GetEntries(); ++i)
     {
         Jet *j = dynamic_cast<Jet *>(bfJets->At(i));
@@ -208,7 +159,18 @@ Plugin::EventOutcome DelphesReaderGen::ProcessEventToOutcome()
     std::sort(electrons.begin(), electrons.end(), comp);
     std::sort(muons.begin(), muons.end(), comp);
     std::sort(jets.begin(), jets.end(), comp);
+}
+
+
+void DelphesReaderGen::SetupBuffers()
+{
+    // Setup buffers for the base class
+    DelphesReaderBase::SetupBuffers();
     
     
-    return Plugin::EventOutcome::Ok;
+    for (auto const &mask: {"GenJet.*", "GenMissingET.*"})
+        tree->SetBranchStatus(mask, true);
+    
+    tree->SetBranchAddress("GenJet", &bfJets);
+    tree->SetBranchAddress("GenMissingET", &bfMETs);
 }

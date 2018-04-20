@@ -4,7 +4,6 @@
 
 
 class TClonesArray;
-class TTree;
 
 
 
@@ -21,9 +20,6 @@ public:
     virtual ~DelphesReaderGen();
     
 public:
-    /// Sets up reading of Delphes tree
-    virtual void BeginFile(TFile *inputFile) override;
-    
     /// Returns collection of electrons
     virtual std::vector<Electron> const &GetElectrons() const override;
     
@@ -37,31 +33,17 @@ public:
      */
     virtual std::vector<Jet> const &GetJets() const override;
     
-    /// Returns particles from the LHE record
-    virtual std::vector<GenParticle> const &GetLHEParticles() const override;
-    
     /// Returns missing pt
     virtual MissingET const &GetMissPt() const override;
     
-    /// Returns nominal per-event weight
-    virtual double GetWeight() const override;
+protected:
+    /// Reads additional collections from the current event
+    virtual void ReadEvent() override;
     
-    /// Reads next event from the input file
-    virtual EventOutcome ProcessEventToOutcome() override;
+    /// Sets up buffers to read branches of Delphes tree with additional collections
+    virtual void SetupBuffers() override;
     
 private:
-    /// Non-owning pointer to Delphes tree
-    TTree *tree;
-    
-    /// Total number of events in the tree and index of the current event
-    unsigned long long numEvents, iEvent;
-    
-    /// Buffer to read global generator-level information about an event
-    TClonesArray *bfEvents;
-    
-    TClonesArray *bfLHEParticles;
-    std::vector<GenParticle> lheParticles;
-    
     TClonesArray *bfJets;
     std::vector<Jet> jets;
     

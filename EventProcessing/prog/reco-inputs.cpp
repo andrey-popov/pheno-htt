@@ -25,7 +25,7 @@ int main(int argc, char **argv)
     
     Processor processor(argv + 1, argv + argc);
     
-    DelphesReader reader(DelphesReader::LHE_PARTICLES);
+    DelphesReader reader;
     processor.RegisterPlugin(&reader);
     
     LJetsSelection selection(&reader);
