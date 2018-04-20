@@ -4,10 +4,13 @@
 #include <TFile.h>
 #include <TTree.h>
 
+#include <stdexcept>
+
 
 DelphesReaderBase::DelphesReaderBase(double jetPtThreshold_, double jetEtaThreshold_):
     jetPtThreshold(jetPtThreshold_), jetEtaThreshold(jetEtaThreshold_),
-    bfEvents(nullptr), bfLHEParticles(nullptr)
+    bfEvents(nullptr), bfLHEParticles(nullptr), bfLHEWeights(nullptr),
+    readLHEWeights(false)
 {}
 
 
@@ -15,6 +18,7 @@ DelphesReaderBase::~DelphesReaderBase()
 {
     delete bfEvents;
     delete bfLHEParticles;
+    delete bfLHEWeights;
 }
 
 
@@ -35,6 +39,16 @@ void DelphesReaderBase::BeginFile(TFile *inputFile)
 std::vector<GenParticle> const &DelphesReaderBase::GetLHEParticles() const
 {
     return lheParticles;
+}
+
+
+std::vector<LHEFWeight> const &DelphesReaderBase::GetLHEWeights() const
+{
+    if (not readLHEWeights)
+        throw std::runtime_error("DelphesReaderBase::GetLHEWeights: Reading of LHE weights "
+          "has not been requested");
+    
+    return lheWeights;
 }
 
 
@@ -61,14 +75,26 @@ Plugin::EventOutcome DelphesReaderBase::ProcessEventToOutcome()
 }
 
 
+void DelphesReaderBase::SetReadLHEWeights(bool on)
+{
+    readLHEWeights = on;
+}
+
+
 void DelphesReaderBase::ReadEvent()
 {
-    // Read LHE particles. Copy objects from collections into vectors to avoid dealing with
-    //TCloneArrays.
     lheParticles.clear();
     
     for (int i = 0; i < bfLHEParticles->GetEntries(); ++i)
         lheParticles.emplace_back(*dynamic_cast<GenParticle *>(bfLHEParticles->At(i)));
+    
+    if (readLHEWeights)
+    {
+        lheWeights.clear();
+        
+        for (int i = 0; i < bfLHEWeights->GetEntries(); ++i)
+            lheWeights.emplace_back(*dynamic_cast<LHEFWeight *>(bfLHEWeights->At(i)));
+    }
 }
 
 
@@ -79,4 +105,10 @@ void DelphesReaderBase::SetupBuffers()
     
     tree->SetBranchAddress("Event", &bfEvents);
     tree->SetBranchAddress("ParticleLHEF", &bfLHEParticles);
+    
+    if (readLHEWeights)
+    {
+        tree->SetBranchStatus("WeightLHEF.*");
+        tree->SetBranchAddress("WeightLHEF", &bfLHEWeights);
+    }
 }

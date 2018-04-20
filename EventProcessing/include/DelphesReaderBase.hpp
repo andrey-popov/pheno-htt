@@ -47,6 +47,14 @@ public:
     /// Returns particles from the LHE record
     std::vector<GenParticle> const &GetLHEParticles() const;
     
+    /**
+     * Returns event weights from the LHE record
+     * 
+     * Only available if reading of LHE weights has been requested with SetReadLHEWeights
+     * beforehand.
+     */
+    std::vector<LHEFWeight> const &GetLHEWeights() const;
+    
     /// Returns missing pt
     virtual MissingET const &GetMissPt() const = 0;
     
@@ -55,6 +63,9 @@ public:
     
     /// Reads next event from the input file
     virtual EventOutcome ProcessEventToOutcome() override final;
+    
+    /// Requests reading of LHE weights
+    void SetReadLHEWeights(bool on = true);
     
 protected:
     /**
@@ -90,4 +101,11 @@ protected:
     /// Buffer to read LHE particles
     TClonesArray *bfLHEParticles;
     std::vector<GenParticle> lheParticles;
+    
+    /// Buffer to read LHE weights
+    TClonesArray *bfLHEWeights;
+    std::vector<LHEFWeight> lheWeights;
+    
+    /// Indicates whether LHE weights should be read
+    bool readLHEWeights;
 };
