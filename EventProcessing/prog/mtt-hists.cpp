@@ -8,20 +8,52 @@
 #include <Processor.hpp>
 #include <SystMttHists.hpp>
 
+#include <boost/program_options.hpp>
+
 #include <iostream>
 #include <vector>
 
 
 int main(int argc, char **argv)
 {
-    if (argc < 2)
+    namespace po = boost::program_options;
+    
+    // Parse arguments
+    po::options_description options("Allowed options");
+    options.add_options()
+      ("help,h", "Prints help message")
+      ("inputFiles", po::value<std::vector<std::string>>(), "Input files")
+      ("resolution,r", po::value<double>()->default_value(0.2), "Relative mtt resolution");
+    
+    po::positional_options_description positionalOptions;
+    positionalOptions.add("inputFiles", -1);
+    
+    po::variables_map optionsMap;
+    
+    po::store(
+      po::command_line_parser(argc, argv).options(options).positional(positionalOptions).run(),
+      optionsMap);
+    po::notify(optionsMap);
+    
+    if (optionsMap.count("help"))
     {
-        std::cerr << "Usage: htt-tuples INPUT_FILE_MASK\n";
+        std::cerr << "Produces histograms with smeared mass of tt system.\n";
+        std::cerr << "Usage: mtt-hists inputFiles [options]\n";
+        std::cerr << options << std::endl;
         return EXIT_FAILURE;
     }
     
+    if (not optionsMap.count("inputFiles"))
+    {
+        std::cerr << "Usage: mtt-hists inputFiles [options]\n";
+        std::cerr << options << std::endl;
+        return EXIT_FAILURE;
+    }
     
-    Processor processor(argv + 1, argv + argc);
+    std::vector<std::string> inputFiles(optionsMap["inputFiles"].as<std::vector<std::string>>());
+    
+    
+    Processor processor(inputFiles.begin(), inputFiles.end());
     processor.SetOutput("output");
     
     DelphesReaderGen reader;
@@ -37,7 +69,7 @@ int main(int argc, char **argv)
     
     std::vector<double> binning{350, 368, 388, 408, 430, 452, 476, 501, 528, 556, 585, 616, 648, 682, 718, 756, 796, 838, 882, 928, 977, 1029, 1083, 1140, 1200};
     
-    SystMttHists writer(&reader, binning, 0.2);
+    SystMttHists writer(&reader, binning, optionsMap["resolution"].as<double>());
     processor.RegisterPlugin(&writer);
     
     processor.Run();

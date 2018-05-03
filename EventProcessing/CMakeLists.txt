@@ -15,7 +15,7 @@ include_directories("$ENV{DELPHES_ROOT}" "$ENV{DELPHES_ROOT}/external")
 find_package(ROOT REQUIRED)
 include_directories(${ROOT_INCLUDE_DIRS})
 
-find_package(Boost 1.63 COMPONENTS container filesystem REQUIRED)
+find_package(Boost 1.63 COMPONENTS container filesystem program_options REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 
 

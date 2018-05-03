@@ -11,4 +11,4 @@ add_executable(htt-tuples-gen htt-tuples-gen.cpp)
 target_link_libraries(htt-tuples-gen htt)
 
 add_executable(mtt-hists mtt-hists.cpp)
-target_link_libraries(mtt-hists htt)
+target_link_libraries(mtt-hists htt ${Boost_PROGRAM_OPTIONS_LIBRARY})
