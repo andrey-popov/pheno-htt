@@ -51,7 +51,7 @@ Dependencies:
  * [ROOT](root.cern.ch) 6.10/04.
  * [Pythia](http://home.thep.lu.se/~torbjorn/Pythia.html) 8.230.
  * [Delphes](https://cp3.irmp.ucl.ac.be/projects/delphes) 3.4.1 built with support of Pythia.
- * Python 3.6.
+ * Python 3.5.
  
  Process LHE files with the following commands:
  ```sh
