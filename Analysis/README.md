@@ -14,7 +14,7 @@ Dependencies:
 
 Produce m<sub>tt</sub> histograms for SM tt, both nominal and systematic variations, by running
 ```sh
-./sm-hists.py
+./smHists.sh
 ./buildTemplates.py
 rm -r hists
 ```
@@ -30,10 +30,11 @@ To protect against this, they are smoothed with a version of the [LOWESS algorit
 Run with
 ```sh
 ./smoothTemplates.py
-mv ttbar_smooth.root ttbar_res20.root
-rm ttbar.root
+./stripBinning.py ttbar_smooth.root ttbar_res20.root
+rm ttbar.root ttbar_smooth.root
 ```
-The script also plots the resulting variations.
+Script `smoothTemplates.py` also plots the resulting variations.
+Script `stripBinning.py` replaces physical m<sub>tt</sub> binning in the produced histograms with a trivial uniform one, as [needed](https://root-forum.cern.ch/t/binned-ml-fit-with-histfactory/28867) for statistical analysis with HistFactory.
 Produced file `ttbar_res20.root` with nominal m<sub>tt</sub> in SM tt and its systematic variations is [stored](ttbar_res20.root) in the repository for convenience, as well as the same file produced with 10% resolution, [`ttbar_res10.root`](ttbar_res10.root).
 
 
