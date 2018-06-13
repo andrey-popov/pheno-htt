@@ -5,6 +5,7 @@ Exports classes to scan over parameters of a model.
 import contextlib
 import os
 import sys
+from uuid import uuid4
 
 import numpy as np
 from scipy.integrate import trapz
@@ -322,27 +323,46 @@ class StatCalc:
     value if it does not exist.
     """
     
-    def __init__(self, signal_distr, binning, bkgfile, lumi):
+    def __init__(self, signal_distr, bkgfile, lumi):
         """Initialize from signal and background distributions.
         
         Arguments:
             signal_distr:  Object to compute event density in mtt
                 distribution for signal, in pb/GeV.  An instance of
                 spectrum.RecoMtt is expected.
-            binning:  Binning in mtt to be used for signal.
-            bkgfile:  ROOT file with distributions for the background,
-                in pb.  The histograms must have trivial uniform
-                binning.
+            bkgfile:  Name of ROOT file with distributions for the
+                background, in pb.
             lumi:  Target integrated luminosity, 1/pb.
+        
+        Binning of background histograms is used for signal
+        distributions as well.
         """
         
         self.signal_distr_calc = signal_distr
-        self.binning = binning
-        self.bkgfile = bkgfile
         self.lumi = lumi
         
-        self._signal_templates = {}
+        self._signal_templates = None
         self._workspace = None
+        
+        
+        bkgfile = ROOT.TFile(bkgfile)
+        
+        # Read binning from the file with backgrounds
+        hist = bkgfile.Get('TT')
+        self.binning = np.asarray([
+            hist.GetBinLowEdge(bin) for bin in range(1, hist.GetNbinsX() + 2)
+        ])
+        
+        
+        # Read all background templates converting them to trivial
+        # uniform binning, as needed for HistFactory [1].
+        # [1] https://root-forum.cern.ch/t/binned-ml-fit-with-histfactory/28867
+        self._bkg_templates = {}
+        
+        for key in bkgfile.GetListOfKeys():
+            self._bkg_templates[key.GetName()] = self._strip_binning(key.ReadObj())
+        
+        bkgfile.Close()
 
 
     def cls(self):
@@ -417,6 +437,24 @@ class StatCalc:
         testResult = calc.GetHypoTest()
         
         return testResult.Significance()
+    
+    
+    def update_signal(self, signal_distr):
+        """Update object to compute signal distributions.
+        
+        Arguments:
+            signal_distr:  Object to compute event density in mtt
+                distribution for signal, in pb/GeV.  An instance of
+                spectrum.RecoMtt is expected.
+        
+        Return value:
+            None.
+        
+        As a side effect, invalidate precomputed signal templates.
+        """
+        
+        self.signal_distr_calc = signal_distr
+        self._signal_templates = None
 
 
     def _build_model(self):
@@ -460,7 +498,7 @@ class StatCalc:
         sgn_neg.AddHistoSys(syst)
         
         bkg = HistFactory.Sample('TT')
-        bkg.SetHisto(self.bkgfile.Get('TT'))
+        bkg.SetHisto(self._bkg_templates['TT'])
         bkg.AddOverallSys('TTRate', 0.9, 1.1)
         
         systNames = ['MttScale', 'RenormScale', 'FactorScale', 'FSR', 'MassT', 'PDFAlphaS']
@@ -468,8 +506,8 @@ class StatCalc:
         
         for systName in systNames:
             syst = HistFactory.HistoSys(systName)
-            syst.SetHistoHigh(self.bkgfile.Get('TT_{}Up'.format(systName)))
-            syst.SetHistoLow(self.bkgfile.Get('TT_{}Down'.format(systName)))
+            syst.SetHistoHigh(self._bkg_templates['TT_{}Up'.format(systName)])
+            syst.SetHistoLow(self._bkg_templates['TT_{}Down'.format(systName)])
             bkg.AddHistoSys(syst)
         
         
@@ -567,3 +605,34 @@ class StatCalc:
             for hist in [hist_pos, hist_neg]:
                 hist.SetDirectory(None)
                 self._signal_templates[hist.GetName()] = hist
+    
+    
+    @staticmethod
+    def _strip_binning(hist):
+        """Copy ROOT histogram stripping binning information.
+        
+        Create a new histogram that has the same bin contents and
+        errors, but uses a trivial equidistant binning.  The new
+        histogram is not attached to any directory.
+        
+        Arguments:
+            hist:  Source ROOT histogram.
+        
+        Return value:
+            Newly created ROOT histogram with trivial equidistant
+            binning.
+        
+        Ignore under- and overflow bins.
+        """
+        
+        num_bins = hist.GetNbinsX()
+        
+        newhist = ROOT.TH1D(uuid4().hex, '', num_bins, 0., num_bins)
+        newhist.SetDirectory(None)
+        newhist.SetName(hist.GetName())
+        
+        for bin in range(1, num_bins + 1):
+            newhist.SetBinContent(bin, hist.GetBinContent(bin))
+            newhist.SetBinError(bin, hist.GetBinError(bin))
+        
+        return newhist

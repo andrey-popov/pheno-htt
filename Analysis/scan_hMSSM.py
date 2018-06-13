@@ -7,7 +7,6 @@ can be stored in an .npz file.
 """
 
 import argparse
-import json
 import os
 
 import numpy as np
@@ -24,15 +23,11 @@ if __name__ == '__main__':
     
     argParser = argparse.ArgumentParser(epilog=__doc__)
     argParser.add_argument(
-        '--binning', default='binning.json',
-        help='JSON file with binning for reconstructed mtt'
-    )
-    argParser.add_argument(
-        '--bkg', default='ttbar.root',
+        '-b', '--bkg', default=None,
         help='ROOT file with templates for SM tt'
     )
     argParser.add_argument(
-        '--lumi', type=float, default=150.,
+        '-l', '--lumi', type=float, default=150.,
         help='Target integrated luminosity, 1/fb'
     )
     argParser.add_argument(
@@ -53,6 +48,9 @@ if __name__ == '__main__':
     )
     args = argParser.parse_args()
     
+    if (args.bkg is None) == (args.from_file is None):
+        raise RuntimeError('One and only one of options --bkg and --from-file must be given.')
+    
     
     figDir = os.path.dirname(args.output)
     
@@ -63,22 +61,17 @@ if __name__ == '__main__':
     if not args.from_file:
         
         # Perform the scan if not reading results from a file
-        with open(args.binning) as f:
-            binning = np.array(json.load(f), dtype=np.float64)
-        
-        bkgfile = ROOT.TFile(args.bkg)
-        
-        
         mA_values = np.arange(350, 1001, 25)
         tanbeta_values = np.arange(0.75, 5.1, 0.25)
         
         grid = statscan.Grid(mA_values, tanbeta_values)
+        calc = statscan.StatCalc(None, args.bkg, args.lumi * 1e3)
         
         for i, mA, tanbeta in grid:
             
             parton_xsec = hmssm.XSecHMSSM(mA, tanbeta, 'hMSSM_13TeV.root')
             reco_mtt = RecoMtt(parton_xsec, resolution=args.resolution)
-            calc = statscan.StatCalc(reco_mtt, binning, bkgfile, args.lumi * 1e3)
+            calc.update_signal(reco_mtt)
             
             significance = calc.significance()
             cls = calc.cls()
@@ -91,8 +84,6 @@ if __name__ == '__main__':
         # Save results of the scan if requested
         if args.save:
             scanner.save(args.save)
-        
-        bkgfile.Close()
     
     else:
         # If reading scan results from a file, just load them
