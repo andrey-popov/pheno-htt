@@ -50,7 +50,7 @@ In order to accelerate the convolution of the parton-level cross sections with t
 ```
 storing the result in file `sHatPDF.npy`, which is also [included](sHatPDF.npy) in the repository for convenience.
 
-Module [`signalmtt.py`](signalmtt.py) computes differential cross section in reconstructed m<sub>tt</sub> starting from the parton-level cross section.
+Module [`spectrum.py`](spectrum.py) provides a class to compute differential cross section in reconstructed m<sub>tt</sub> starting from the parton-level cross section.
 It applies the branching ratio for the targeted decays (set to 8/27, which corresponds to &ell;&nbsp;+&nbsp;jets), performs the convolution with PDF, applies efficiency of the event selection (a hard-coded function of parton-level m<sub>tt</sub>), and performs the smearing to account for the resolution effects.
 
 The full setup can be tested with script [`plotSmearedSignal.py`](plotSmearedSignal.py), which constructs and plots m<sub>tt</sub> distributions for different values of the resolution.
@@ -60,8 +60,7 @@ The full setup can be tested with script [`plotSmearedSignal.py`](plotSmearedSig
 
 Scan over parameters of the model and plot results with commands like
 ```sh
-./scan.py --bkg ttbar_res20.root --lumi 150 -o scan_150ifb.csv &> log.txt
-./plotScan.py scan_150ifb.csv -o fig/hMSSM_res20_150ifb.pdf -l 'hMSSM;Resolution 20%, $L = 150$ fb$^{-1}$'
+./scan_hMSSM.py --bkg ttbar_res20.root -r 0.2 --lumi 150 -o fig/hMSSM_res20_150ifb.pdf
 ```
-Due to a large number of points, the first command takes about an hour.
+Due to a large number of points, this command takes about an hour.
 For each probed point on the (m<sub>A</sub>, tan&nbsp;&beta;) plane, the script computes the expected significance and the CL<sub>s</sub> value for an upper limit.

@@ -13,7 +13,7 @@ from matplotlib import pyplot as plt
 import lhapdf
 
 import hmssm
-from signalmtt import SignalMtt
+from spectrum import RecoMtt
 
 
 if __name__ == '__main__':
@@ -31,30 +31,30 @@ if __name__ == '__main__':
     lhapdf.setVerbosity(0)
     
     
-    mA, tanBeta = 500., 1.
-    partonCalc = hmssm.PartonXSec(mA, tanBeta, 'hMSSM_13TeV.root')
-    signalMtt = SignalMtt(partonCalc)
+    mA, tanbeta = 500., 1.
+    parton_xsec = hmssm.XSecHMSSM(mA, tanbeta, 'hMSSM_13TeV.root')
+    reco_mtt = RecoMtt(parton_xsec)
     
     
     fig = plt.figure()
     axes = fig.add_subplot(111)
     
     mtt = np.linspace(300., 700., num=500)
-    xSecNoSmear = np.empty_like(mtt)
+    xsec_nosmear = np.empty_like(mtt)
     
     for i in range(len(mtt)):
-        xSecNoSmear[i] = signalMtt.xsec_no_smear(mtt[i])
+        xsec_nosmear[i] = reco_mtt.xsec_no_smear(mtt[i])
     
-    axes.plot(mtt, xSecNoSmear, c='black', label='No smearing')
+    axes.plot(mtt, xsec_nosmear, c='black', label='No smearing')
     
     for resolution in [1e-2, 0.05, 0.1, 0.2]:
-        signalMtt.resolution = resolution
-        xSec = np.empty_like(mtt)
+        reco_mtt.resolution = resolution
+        xsec = np.empty_like(mtt)
         
         for i in range(len(mtt)):
-            xSec[i] = signalMtt.xsec(mtt[i])
+            xsec[i] = reco_mtt.xsec(mtt[i])
         
-        axes.plot(mtt, xSec, label='Smearing {:g}%'.format(resolution * 100.))
+        axes.plot(mtt, xsec, label='Smearing {:g}%'.format(resolution * 100.))
     
     axes.axhline(0., c='black', ls='dashed', lw=0.8)
     
@@ -64,7 +64,7 @@ if __name__ == '__main__':
     axes.set_ylabel('Differential cross section [pb/GeV]')
     
     axes.text(
-        1., 1., '$m_A = {:g}$ GeV, $\\tan\\beta = {:g}$'.format(mA, tanBeta),
+        1., 1., '$m_A = {:g}$ GeV, $\\tan\\beta = {:g}$'.format(mA, tanbeta),
         ha='right', va='bottom', transform=axes.transAxes
     )
     
