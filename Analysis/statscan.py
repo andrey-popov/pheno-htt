@@ -2,6 +2,10 @@
 Exports classes to scan over parameters of a model.
 """
 
+import contextlib
+import os
+import sys
+
 import numpy as np
 from scipy.integrate import trapz
 from scipy.interpolate import RectBivariateSpline
@@ -21,6 +25,30 @@ mpl.rc('axes.formatter', limits=[-2, 4], use_mathtext=True)
 
 ROOT.Math.MinimizerOptions.SetDefaultMinimizer('Minuit2', 'Minimize')
 ROOT.RooStats.UseNLLOffset(True)
+
+
+@contextlib.contextmanager
+def suppress_stdout():
+    """Context manager to suppress stdout.
+    
+    Works for Python and external libraries alike.  Code from [1].
+    [1] https://stackoverflow.com/a/17954769/966461
+    """
+    
+    fd = sys.stdout.fileno()
+    
+    def _redirect_stdout(to):
+        sys.stdout.close()
+        os.dup2(to.fileno(), fd)
+        sys.stdout = os.fdopen(fd, 'w')
+    
+    with os.fdopen(os.dup(fd), 'w') as old_stdout:
+        with open(os.devnull, 'w') as f:
+            _redirect_stdout(to=f)
+        try:
+            yield
+        finally:
+            _redirect_stdout(to=old_stdout)
 
 
 class Grid:
@@ -459,7 +487,11 @@ class StatCalc:
         
         
         # Construct the workspace as well as s+b and b-only models
-        self._workspace = HistFactory.HistoToWorkspaceFactoryFast.MakeCombinedModel(measurement)
+        with suppress_stdout():
+            # Suppress stdout here since the command below will print
+            # out the whole workspace
+            self._workspace = \
+                HistFactory.HistoToWorkspaceFactoryFast.MakeCombinedModel(measurement)
         
         self._fullModel = self._workspace.obj('ModelConfig')
         
