@@ -1,6 +1,6 @@
 """
 Exports an abstract base class to describe parton-level cross section
-for gg -> H -> tt and a class to emulate reconstructed mtt distribution
+for gg -> S -> tt and a class to emulate reconstructed mtt distribution
 starting from the parton-level cross section.
 """
 
@@ -20,14 +20,17 @@ lhapdf.setVerbosity(0)
 
 class PartonXSec(abc.ABC):
     
-    """Base class to compute cross sections for gg -> H -> tt.
+    """Base class to compute cross sections for gg -> S -> tt.
     
     Provides an interface for computation of parton-level cross sections
-    for the resonant production of gg -> H -> tt and the interference
+    for the resonant production of gg -> S -> tt and the interference
     with the SM gg -> tt background.  The cross sections are evaluated
     as functions of the square root of Mandelstam s variable, which is
     equivalent to the mtt invariant mass, and the strong coupling
     constant.
+    
+    Several auxiliary methods, such as computation of the partial width
+    for the H -> tt decay, are also provided.
     
     Class attributes:
         mt:  Mass of the top quark (GeV).
@@ -44,6 +47,59 @@ class PartonXSec(abc.ABC):
     
     def __init__(self):
         self.var_scale_ = None
+    
+    
+    @staticmethod
+    def beta(s):
+        """Compute velocity of each of the top quarks.
+        
+        Arguments:
+            s:  Mandelstam s variable, in GeV^2.
+        
+        Return value:
+            The velocity beta.
+        """
+        
+        return math.sqrt(1 - 4 * PartonXSec.mt ** 2 / s)
+    
+    
+    @staticmethod
+    def loop_ampl(cp, s, mf=None):
+        """Compute fermionic loop amplitude.
+        
+        Amplitudes associated with the fermion loop attached to a Higgs
+        boson are taken from Section 2.2.1 of [1].
+        [1] Branco et al., https://arxiv.org/abs/1106.0034
+        
+        Arguments:
+            cp:  CP state of the Higgs boson, 'A' or 'H'.
+            s:  Mandelstam s variable, in GeV^2.
+            mf:  Mass of the fermion, in GeV.  Alternatively, can be
+                None.  In this case mass of the top quark is used.
+        
+        Return value:
+            Computed amplitude.  It is a complex number.
+        """
+        
+        PartonXSec._check_cp(cp)
+        
+        if mf is None:
+            mf = PartonXSec.mt
+        
+        tau = s / (2 * mf) ** 2
+        
+        if tau > 1:
+            beta = math.sqrt(1 - 1 / tau)
+            f = -0.25 * (math.log((1 + beta) / (1 - beta)) - math.pi * 1j) ** 2
+        else:
+            f = math.asin(math.sqrt(tau)) ** 2
+        
+        if cp == 'H':
+            A = 2 * (tau + (tau - 1) * f) / tau ** 2
+        else:
+            A = 2 * f / tau
+        
+        return A
     
     
     @staticmethod
@@ -78,8 +134,44 @@ class PartonXSec(abc.ABC):
         self.var_scale_ = value
     
     
+    @staticmethod
+    def width_tt(cp, mass, s=None, g=1.):
+        """Compute partial width for the decay to tt.
+        
+        Use formulae for energy-dependent widths from [1].
+        [1] Dicus et al., http://arxiv.org/abs/hep-ph/9404359
+        
+        Arguments:
+            cp:  CP state of the Higgs boson, 'A' or 'H'.
+            mass:  Mass of the Higgs boson, in GeV.
+            s:  Mandelstam s variable, in GeV^2.  Alternatively, can be
+                None.  In this case compute the width at the scale
+                mass^2.
+            g:  Reduced coupling to top quarks.
+        
+        Return value:
+            Partial width for the decay H -> tt, in GeV.
+        """
+        
+        PartonXSec._check_cp(cp)
+        
+        if cp == 'H':
+            beta_power = 3
+        else:
+            beta_power = 1
+        
+        if s is None:
+            s = mass ** 2
+        
+        if s < 4 * PartonXSec.mt ** 2:
+            return 0.
+        
+        return g ** 2 * 3 * PartonXSec.gF * PartonXSec.mt ** 2 / (4 * math.pi * math.sqrt(2)) \
+            * PartonXSec.beta(s) ** beta_power * s / mass
+    
+    
     def xsec(self, sqrt_s, alpha_s):
-        """Compute cross section for gg -> H -> tt.
+        """Compute cross section for gg -> S -> tt.
         
         Arguments:
             sqrt_s:  Square root of Mandelstam s variable, in GeV.
@@ -94,7 +186,7 @@ class PartonXSec(abc.ABC):
     
     @abc.abstractmethod
     def xsec_res(self, sqrt_s, alpha_s):
-        """Compute cross section for resonant part in gg -> H -> tt.
+        """Compute cross section for resonant part in gg -> S -> tt.
         
         Arguments:
             sqrt_s:  Square root of Mandelstam s variable, in GeV.
@@ -111,7 +203,7 @@ class PartonXSec(abc.ABC):
     
     @abc.abstractmethod
     def xsec_int(self, sqrt_s, alpha_s):
-        """Compute cross section for interference in gg -> H -> tt.
+        """Compute cross section for interference in gg -> S -> tt.
         
         Arguments:
             sqrt_s:  Square root of Mandelstam s variable, in GeV.
@@ -124,6 +216,23 @@ class PartonXSec(abc.ABC):
         """
         
         raise NotImplementedError
+    
+    
+    @staticmethod
+    def _check_cp(cp):
+        """Check if given CP state is supported.
+        
+        Raise an exception if given label of CP state is not 'A' or 'H'.
+        
+        Arguments:
+            cp:  Label of the CP state.
+        
+        Return value:
+            None.
+        """
+        
+        if cp not in {'A', 'H'}:
+            raise RuntimeError('Cannot recognize CP state "{}".'.format(cp))
 
 
 class RecoMtt:

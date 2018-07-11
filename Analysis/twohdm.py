@@ -4,7 +4,7 @@ from spectrum import PartonXSec
 
 
 class XSecTwoHDM(PartonXSec):
-    """A class to compute cross sections for gg -> H -> tt in 2HDM.
+    """A class to compute cross sections for gg -> S -> tt in 2HDM.
     
     Expressions for the cross sections have been adapted from [1], with
     a difference of using fixed widths.
@@ -46,7 +46,7 @@ class XSecTwoHDM(PartonXSec):
     
     
     def xsec_res(self, sqrt_s, alpha_s):
-        """Compute cross section for resonant part in gg -> H -> tt.
+        """Compute cross section for resonant part in gg -> S -> tt.
         
         Arguments:
             sqrt_s:  Square root of Mandelstam s variable, in GeV.
@@ -62,7 +62,7 @@ class XSecTwoHDM(PartonXSec):
     
     
     def xsec_int(self, sqrt_s, alpha_s):
-        """Compute cross section for interference in gg -> H -> tt.
+        """Compute cross section for interference in gg -> S -> tt.
         
         Arguments:
             sqrt_s:  Square root of Mandelstam s variable, in GeV.
@@ -85,7 +85,7 @@ class XSecTwoHDM(PartonXSec):
         if s < 4 * self.mt ** 2:
             return 0.
         
-        beta = math.sqrt(1 - 4 * self.mt ** 2 / s)
+        beta = self.beta(s)
         y = math.log((1 + beta) / (1 - beta))
         
         a = 3 * (alpha_s * self.gF * self.mt ** 3) ** 2 * beta ** 3 / (1024 * math.pi ** 3)
@@ -103,7 +103,7 @@ class XSecTwoHDM(PartonXSec):
         if s < 4 * self.mt ** 2:
             return 0.
         
-        beta = math.sqrt(1 - 4 * self.mt ** 2 / s)
+        beta = self.beta(s)
         y = math.log((1 + beta) / (1 - beta))
         
         a = -alpha_s ** 2 * self.gF * self.mt ** 4 * beta ** 2 / \
@@ -123,7 +123,7 @@ class XSecTwoHDM(PartonXSec):
         if s < 4 * self.mt ** 2:
             return 0.
         
-        beta = math.sqrt(1 - 4 * self.mt ** 2 / s)
+        beta = self.beta(s)
         y = math.log((1 + beta) / (1 - beta))
         
         a = 3 * (alpha_s * self.gF * self.mt ** 3) ** 2 * beta / (1024 * math.pi ** 3)
@@ -141,7 +141,7 @@ class XSecTwoHDM(PartonXSec):
         if s < 4 * self.mt ** 2:
             return 0.
         
-        beta = math.sqrt(1 - 4 * self.mt ** 2 / s)
+        beta = self.beta(s)
         y = math.log((1 + beta) / (1 - beta))
         
         a = -alpha_s ** 2 * self.gF * self.mt ** 4 / (32 * math.pi * math.sqrt(2) * s) * y
