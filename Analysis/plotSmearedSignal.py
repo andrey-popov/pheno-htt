@@ -23,10 +23,10 @@ if __name__ == '__main__':
     mpl.rc('axes', labelsize='large')
     mpl.rc('axes.formatter', limits=[-2, 4], use_mathtext=True)
     
-    figDir = 'fig'
+    fig_dir = 'fig'
     
-    if not os.path.exists(figDir):
-        os.makedirs(figDir)
+    if not os.path.exists(fig_dir):
+        os.makedirs(fig_dir)
     
     lhapdf.setVerbosity(0)
     
@@ -68,5 +68,5 @@ if __name__ == '__main__':
         ha='right', va='bottom', transform=axes.transAxes
     )
     
-    fig.savefig(os.path.join(figDir, 'resolution.pdf'))
+    fig.savefig(os.path.join(fig_dir, 'resolution.pdf'))
     plt.close(fig)

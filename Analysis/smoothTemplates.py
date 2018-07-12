@@ -27,23 +27,23 @@ def hist_to_np(hist, full=False):
         tuple of arrays with bin edges, contents, and errors.
     """
     
-    nBins = hist.GetNbinsX()
-    content = np.empty(nBins)
+    num_bins = hist.GetNbinsX()
+    content = np.empty(num_bins)
     
-    for bin in range(1, nBins + 1):
+    for bin in range(1, num_bins + 1):
         content[bin - 1] = hist.GetBinContent(bin)
     
     if not full:
         return content
     else:
-        binning = np.empty(nBins + 1)
-        errors = np.empty(nBins)
+        binning = np.empty(num_bins + 1)
+        errors = np.empty(num_bins)
         
-        for bin in range(1, nBins + 1):
+        for bin in range(1, num_bins + 1):
             binning[bin - 1] = hist.GetBinLowEdge(bin)
             errors[bin - 1] = hist.GetBinError(bin)
         
-        binning[-1] = hist.GetBinLowEdge(nBins + 1)
+        binning[-1] = hist.GetBinLowEdge(num_bins + 1)
         
         return binning, content, errors
 
@@ -71,29 +71,29 @@ class Smoother:
         self.down = down
         self.weights = weights
         
-        self.smoothAveragedDeviation = None
+        self.smooth_averaged_deviation = None
     
     
     @staticmethod
-    def lowess(y, externalWeights, bandwidth):
+    def lowess(y, external_weights, bandwidth):
         """Peform LOWESS smoothing.
         
         Arguments:
             y:  Input sequence to be smoothed.
-            externalWeights:  Weights of points in the sequence.
+            external_weights:  Weights of points in the sequence.
             bandwidth:  Smoothing bandwidth defined in terms of indices.
         
         Return value:
             Smoothed sequence.
         """
         
-        ySmooth = np.empty_like(y)
+        y_smooth = np.empty_like(y)
         
-        for i in range(len(ySmooth)):
+        for i in range(len(y_smooth)):
             
             # Point indices, centred at the current point, will be used
             # as x coordinate
-            x = np.arange(len(ySmooth)) - i
+            x = np.arange(len(y_smooth)) - i
             
             # Compute standard weights for LOWESS
             distances = np.abs(x) / bandwidth
@@ -102,7 +102,7 @@ class Smoother:
             
             # Include weights provided by the caller and rescale weights
             # to simplify computation of various mean values below
-            weights *= externalWeights
+            weights *= external_weights
             weights /= np.sum(weights)
             
             
@@ -110,14 +110,14 @@ class Smoother:
             # least-squares fit with a linear function.  Since x
             # coordinates are centred at the current point, only need to
             # find the constant term in the linear function.
-            meanX = np.dot(weights, x)
-            meanY = np.dot(weights, y)
-            meanX2 = np.dot(weights, x ** 2)
-            meanXY = np.dot(weights, x * y)
+            mean_x = np.dot(weights, x)
+            mean_y = np.dot(weights, y)
+            mean_x2 = np.dot(weights, x ** 2)
+            mean_xy = np.dot(weights, x * y)
             
-            ySmooth[i] = (meanX2 * meanY - meanX * meanXY) / (meanX2 - meanX ** 2)
+            y_smooth[i] = (mean_x2 * mean_y - mean_x * mean_xy) / (mean_x2 - mean_x ** 2)
         
-        return ySmooth
+        return y_smooth
     
     
     def smooth(self, bandwidth=5):
@@ -136,7 +136,7 @@ class Smoother:
         templates.
         """
         
-        self.smoothAveragedDeviation = self.lowess(
+        self.smooth_averaged_deviation = self.lowess(
             0.5 * (self.up - self.down) / self.nominal, self.weights, bandwidth
         )
         
@@ -144,8 +144,8 @@ class Smoother:
         sfDown = self._scale_factor(self.down)
         
         return (
-            self.nominal * (1 + sfUp * self.smoothAveragedDeviation),
-            self.nominal * (1 + sfDown * self.smoothAveragedDeviation)
+            self.nominal * (1 + sfUp * self.smooth_averaged_deviation),
+            self.nominal * (1 + sfDown * self.smooth_averaged_deviation)
         )
     
     
@@ -163,9 +163,9 @@ class Smoother:
         """
         
         # This is result of an analytical computation
-        smoothAbsDev = self.smoothAveragedDeviation * self.nominal
-        return np.sum(smoothAbsDev * (template - self.nominal) * self.weights) / \
-            np.sum(smoothAbsDev ** 2 * self.weights)
+        smooth_abs_dev = self.smooth_averaged_deviation * self.nominal
+        return np.sum(smooth_abs_dev * (template - self.nominal) * self.weights) / \
+            np.sum(smooth_abs_dev ** 2 * self.weights)
         
 
 
@@ -176,21 +176,21 @@ if __name__ == '__main__':
     mpl.rc('axes', labelsize='large')
     mpl.rc('axes.formatter', limits=[-2, 4], use_mathtext=True)
     
-    figDir = 'figSmooth'
+    fig_dir = 'figSmooth'
     
-    if not os.path.exists(figDir):
-        os.makedirs(figDir)
+    if not os.path.exists(fig_dir):
+        os.makedirs(fig_dir)
     
     
-    inputFile = ROOT.TFile('ttbar.root')
-    outputFile = ROOT.TFile('ttbar_smooth.root', 'recreate')
-    templatesToSave = []
+    input_file = ROOT.TFile('ttbar.root')
+    output_file = ROOT.TFile('ttbar_smooth.root', 'recreate')
+    templates_to_save = []
     
-    binning, nominal, errors = hist_to_np(inputFile.Get('TT'), full=True)
+    binning, nominal, errors = hist_to_np(input_file.Get('TT'), full=True)
     
     
     # Copy histograms that do not need smoothing
-    for key in inputFile.GetListOfKeys():
+    for key in input_file.GetListOfKeys():
         
         hist = key.ReadObj()
         name = hist.GetName()
@@ -198,43 +198,43 @@ if __name__ == '__main__':
         if 'MttScale' in name or 'FSR' in name or 'MassT' in name:
             continue
         
-        hist.SetDirectory(outputFile)
-        templatesToSave.append(hist)
+        hist.SetDirectory(output_file)
+        templates_to_save.append(hist)
     
     
-    for systName, label in [
+    for syst_name, label in [
         ('MttScale', 'Exp. scale in $m_{t\\bar t}$'),
         ('FSR', '$\\alpha_s$ in FSR'), ('MassT', '$m_t$')
     ]:
         # Smooth variations
-        up = hist_to_np(inputFile.Get('TT_{}Up'.format(systName)))
-        down = hist_to_np(inputFile.Get('TT_{}Down'.format(systName)))
+        up = hist_to_np(input_file.Get('TT_{}Up'.format(syst_name)))
+        down = hist_to_np(input_file.Get('TT_{}Down'.format(syst_name)))
         
         smoother = Smoother(nominal, up, down, 1 / errors ** 2)
-        upSmooth, downSmooth = smoother.smooth()
+        up_smooth, down_smooth = smoother.smooth()
         
         
         # Create histograms with smoothed templates
-        for direction, smoothTemplate in [
-            ('Up', upSmooth), ('Down', downSmooth)
+        for direction, smooth_template in [
+            ('Up', up_smooth), ('Down', down_smooth)
         ]:
-            histSmooth = ROOT.TH1D(
-                'TT_{}{}'.format(systName, direction), '',
+            hist_smooth = ROOT.TH1D(
+                'TT_{}{}'.format(syst_name, direction), '',
                 len(binning) - 1, binning
             )
             
-            for bin in range(1, histSmooth.GetNbinsX() + 1):
-                histSmooth.SetBinContent(bin, smoothTemplate[bin - 1])
+            for bin in range(1, hist_smooth.GetNbinsX() + 1):
+                hist_smooth.SetBinContent(bin, smooth_template[bin - 1])
             
-            histSmooth.SetDirectory(outputFile)
-            templatesToSave.append(histSmooth)
+            hist_smooth.SetDirectory(output_file)
+            templates_to_save.append(hist_smooth)
         
         
         # Convert to relative deviations and plot them
         up = up / nominal - 1
         down = down / nominal - 1
-        upSmooth = upSmooth / nominal - 1
-        downSmooth = downSmooth / nominal - 1
+        up_smooth = up_smooth / nominal - 1
+        down_smooth = down_smooth / nominal - 1
         
         fig = plt.figure()
         axes = fig.add_subplot(111)
@@ -244,7 +244,7 @@ if __name__ == '__main__':
             color='#a8d2f0', label='Up, input'
         )
         axes.hist(
-            binning[:-1], bins=binning, weights=upSmooth * 100, histtype='step',
+            binning[:-1], bins=binning, weights=up_smooth * 100, histtype='step',
             color='#1f77b4', label='Up, smoothed'
         )
         axes.hist(
@@ -252,7 +252,7 @@ if __name__ == '__main__':
             color='#ffc999', label='Down, input'
         )
         axes.hist(
-            binning[:-1], bins=binning, weights=downSmooth * 100, histtype='step',
+            binning[:-1], bins=binning, weights=down_smooth * 100, histtype='step',
             color='#ff7f0e', label='Down, smoothed'
         )
         
@@ -270,10 +270,10 @@ if __name__ == '__main__':
             ha='center', va='bottom', transform=axes.transAxes
         )
         
-        fig.savefig(os.path.join(figDir, systName + '.pdf'))
+        fig.savefig(os.path.join(fig_dir, syst_name + '.pdf'))
         plt.close(fig)
     
     
-    outputFile.Write()
-    outputFile.Close()
-    inputFile.Close()
+    output_file.Write()
+    output_file.Close()
+    input_file.Close()

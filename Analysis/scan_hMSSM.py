@@ -21,41 +21,41 @@ import statscan
 
 if __name__ == '__main__':
     
-    argParser = argparse.ArgumentParser(epilog=__doc__)
-    argParser.add_argument(
+    arg_parser = argparse.ArgumentParser(epilog=__doc__)
+    arg_parser.add_argument(
         '-b', '--bkg', default=None,
         help='ROOT file with templates for SM tt'
     )
-    argParser.add_argument(
+    arg_parser.add_argument(
         '-l', '--lumi', type=float, default=150.,
         help='Target integrated luminosity, 1/fb'
     )
-    argParser.add_argument(
+    arg_parser.add_argument(
         '-r', '--resolution', type=float, default=0.2,
         help='Relative resolution in mtt'
     )
-    argParser.add_argument(
+    arg_parser.add_argument(
         '--save', default=None,
         help='Name of .npz file to store numeric results of the scan'
     )
-    argParser.add_argument(
+    arg_parser.add_argument(
         '--from-file', dest='from_file', default=None,
         help='Name of .npz file with results of a scan'
     )
-    argParser.add_argument(
+    arg_parser.add_argument(
         '-o', '--output', default='fig/significance.pdf',
         help='Name for output figure file'
     )
-    args = argParser.parse_args()
+    args = arg_parser.parse_args()
     
     if (args.bkg is None) == (args.from_file is None):
         raise RuntimeError('One and only one of options --bkg and --from-file must be given.')
     
     
-    figDir = os.path.dirname(args.output)
+    fig_dir = os.path.dirname(args.output)
     
-    if figDir and not os.path.exists(figDir):
-        os.makedirs(figDir)
+    if fig_dir and not os.path.exists(fig_dir):
+        os.makedirs(fig_dir)
     
     
     if not args.from_file:

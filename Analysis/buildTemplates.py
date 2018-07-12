@@ -21,63 +21,63 @@ class HistAggregator:
     number of generated events, and a k-factor is applied.
     """
     
-    def __init__(self, outputName, numEvents, kFactor=1.):
+    def __init__(self, output_name, num_events, k_factor=1.):
         """Initializer.
         
         Arguments:
-            outputName:  Name for output ROOT file.
-            numEvents:  Number of generated events before event
+            output_name:  Name for output ROOT file.
+            num_events:  Number of generated events before event
                 selection.
-            kFactor:  Scale factor to account for higher-order
+            k_factor:  Scale factor to account for higher-order
                 corrections.
         """
         
-        self.outputFile = ROOT.TFile(outputName, 'recreate')
-        self.kFactor = kFactor
-        self.numEvents = numEvents
+        self.output_file = ROOT.TFile(output_name, 'recreate')
+        self.k_factor = k_factor
+        self.num_events = num_events
         self.hists = []
     
     
-    def add(self, inputFile, histName, histWriteName=None):
+    def add(self, input_file, hist_name, hist_write_name=None):
         """Add a new histogram to the output file.
         
         Arguments:
-            inputFile:  Opened ROOT file or a path to one.
-            histName:  Name of histogram to read from the file.
-            histWriteName:  New name for the histogram, which will be
+            input_file:  Opened ROOT file or a path to one.
+            hist_name:  Name of histogram to read from the file.
+            hist_write_name:  New name for the histogram, which will be
                 used in the output file.
         
         Return value:
             Added histogram
         """
         
-        if not isinstance(inputFile, ROOT.TDirectoryFile):
+        if not isinstance(input_file, ROOT.TDirectoryFile):
             # Interpret this argument as a path
-            inputFile = ROOT.TFile(inputFile)
-            openedFile = True
+            input_file = ROOT.TFile(input_file)
+            opened_file = True
         else:
-            openedFile = False
+            opened_file = False
         
-        hist = inputFile.Get(histName)
+        hist = input_file.Get(hist_name)
         
         if not hist:
             raise RuntimeError('Failed to read histogram "{}{}".'.format(
-                inputFile.GetPath(), histName
+                input_file.GetPath(), hist_name
             ))
         
-        if histWriteName:
-            hist.SetName(histWriteName)
+        if hist_write_name:
+            hist.SetName(hist_write_name)
         
-        hist.Scale(self.kFactor / self.numEvents)
+        hist.Scale(self.k_factor / self.num_events)
         
         # Associate the histogram with the output file and put it into a
         # list so that it is not deleted by garbage collector
-        hist.SetDirectory(self.outputFile)
+        hist.SetDirectory(self.output_file)
         self.hists.append(hist)
         
         # Close input file if it was opened here
-        if openedFile:
-            inputFile.Close()
+        if opened_file:
+            input_file.Close()
         
         return hist
     
@@ -88,7 +88,7 @@ class HistAggregator:
         Do not apply any modifications to it.
         """
         
-        hist.SetDirectory(self.outputFile)
+        hist.SetDirectory(self.output_file)
         self.hists.append(hist)
     
     
@@ -104,57 +104,57 @@ class HistAggregator:
             hist.SetBinContent(hist.GetNbinsX() + 1, 0.)
             hist.SetBinError(hist.GetNbinsX() + 1, 0.)
         
-        self.outputFile.Write()
+        self.output_file.Write()
 
 
 if __name__ == '__main__':
     
     ROOT.gROOT.SetBatch(True)
     
-    aggregator = HistAggregator('ttbar.root', 5000000, kFactor=1.6)
+    aggregator = HistAggregator('ttbar.root', 5000000, k_factor=1.6)
     
-    mainInputFile = ROOT.TFile('hists/ttbar.root')
+    main_input_file = ROOT.TFile('hists/ttbar.root')
     
-    histNominal = aggregator.add(mainInputFile, 'Nominal', 'TT')
+    hist_nominal = aggregator.add(main_input_file, 'Nominal', 'TT')
     
-    aggregator.add(mainInputFile, 'ScaleUp', 'TT_MttScaleUp')
-    aggregator.add(mainInputFile, 'ScaleDown', 'TT_MttScaleDown')
+    aggregator.add(main_input_file, 'ScaleUp', 'TT_MttScaleUp')
+    aggregator.add(main_input_file, 'ScaleDown', 'TT_MttScaleDown')
     
     
     # Changes in cross section are factorized out so that the resulting
     # variations only reflect the impact on the acceptance and shapes
-    hist = aggregator.add(mainInputFile, 'AltWeight_ID35', 'TT_RenormScaleUp')
+    hist = aggregator.add(main_input_file, 'AltWeight_ID35', 'TT_RenormScaleUp')
     hist.Scale(78.5413478374 / 66.0966981708)
     
-    hist = aggregator.add(mainInputFile, 'AltWeight_ID6',  'TT_RenormScaleDown')
+    hist = aggregator.add(main_input_file, 'AltWeight_ID6',  'TT_RenormScaleDown')
     hist.Scale(78.5413478374 / 94.9362566747)
     
-    hist = aggregator.add(mainInputFile, 'AltWeight_ID25', 'TT_FactorScaleUp')
+    hist = aggregator.add(main_input_file, 'AltWeight_ID25', 'TT_FactorScaleUp')
     hist.Scale(78.5413478374 / 74.2105427156)
     
-    hist = aggregator.add(mainInputFile, 'AltWeight_ID16', 'TT_FactorScaleDown')
+    hist = aggregator.add(main_input_file, 'AltWeight_ID16', 'TT_FactorScaleDown')
     hist.Scale(78.5413478374 / 83.0940774172)
     
     
-    for iPDF in range(30):
-        histPDFUp = aggregator.add(
-            mainInputFile, 'AltWeight_ID{}'.format(46 + iPDF), 'TT_PDF{}Up'.format(iPDF + 1)
+    for ipdf in range(30):
+        hist_pdf_up = aggregator.add(
+            main_input_file, 'AltWeight_ID{}'.format(46 + ipdf), 'TT_PDF{}Up'.format(ipdf + 1)
         )
         
         # PDF uncertainties are described with symmetric eigenvectors,
         # and only one variation encoded into the weights.  It is taken
         # as the "up" variation.  The "down" one is symmetric by
         # construction.  It is built manually.
-        histPDFDown = histNominal.Clone('TT_PDF{}Down'.format(iPDF + 1))
-        histPDFDown.Scale(2)
-        histPDFDown.Add(histPDFUp, -1)
-        aggregator.add_hist(histPDFDown)
+        hist_pdf_down = hist_nominal.Clone('TT_PDF{}Down'.format(ipdf + 1))
+        hist_pdf_down.Scale(2)
+        hist_pdf_down.Add(hist_pdf_up, -1)
+        aggregator.add_hist(hist_pdf_down)
         
     
-    aggregator.add(mainInputFile, 'AltWeight_ID77', 'TT_PDFAlphaSUp')
-    aggregator.add(mainInputFile, 'AltWeight_ID76', 'TT_PDFAlphaSDown')
+    aggregator.add(main_input_file, 'AltWeight_ID77', 'TT_PDFAlphaSUp')
+    aggregator.add(main_input_file, 'AltWeight_ID76', 'TT_PDFAlphaSDown')
     
-    mainInputFile.Close()
+    main_input_file.Close()
     
     aggregator.add('hists/ttbar_FSR-up.root', 'Nominal', 'TT_FSRUp')
     aggregator.add('hists/ttbar_FSR-down.root', 'Nominal', 'TT_FSRDown')

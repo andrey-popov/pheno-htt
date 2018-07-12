@@ -23,26 +23,26 @@ if __name__ == '__main__':
     mpl.rc('axes', labelsize='large')
     mpl.rc('axes.formatter', limits=[-2, 4], use_mathtext=True)
     
-    figDir = 'figSyst'
+    fig_dir = 'figSyst'
     
-    if not os.path.exists(figDir):
-        os.makedirs(figDir)
+    if not os.path.exists(fig_dir):
+        os.makedirs(fig_dir)
     
     
-    templatesFile = ROOT.TFile('ttbar.root')
+    templates_file = ROOT.TFile('ttbar.root')
     
-    histNominal = templatesFile.Get('TT')
-    nominal = hist_to_np(histNominal)
+    hist_nominal = templates_file.Get('TT')
+    nominal = hist_to_np(hist_nominal)
     
     # Extract binning from the nominal histogram
-    binning = np.empty(histNominal.GetNbinsX() + 1)
+    binning = np.empty(hist_nominal.GetNbinsX() + 1)
     
-    for bin in range(1, histNominal.GetNbinsX() + 2):
-        binning[bin - 1] = histNominal.GetBinLowEdge(bin)
+    for bin in range(1, hist_nominal.GetNbinsX() + 2):
+        binning[bin - 1] = hist_nominal.GetBinLowEdge(bin)
     
     
     # Plot individual variations, one per figure
-    for systName, description, halfRange in [
+    for syst_name, description, half_range in [
         ('MttScale', 'Exp. scale in $m_{t\\bar t}$', 0.075),
         ('RenormScale', 'ME $\\mu_\\mathrm{R}$', 0.075),
         ('FactorScale', 'ME $\\mu_\\mathrm{F}$', 0.075),
@@ -50,8 +50,8 @@ if __name__ == '__main__':
         ('FSR', '$\\alpha_s$ in FSR', 0.075),
         ('MassT', '$m_t$', 0.075)
     ]:
-        up = hist_to_np(templatesFile.Get('TT_{}Up'.format(systName))) / nominal - 1
-        down = hist_to_np(templatesFile.Get('TT_{}Down'.format(systName))) / nominal - 1
+        up = hist_to_np(templates_file.Get('TT_{}Up'.format(syst_name))) / nominal - 1
+        down = hist_to_np(templates_file.Get('TT_{}Down'.format(syst_name))) / nominal - 1
         
         up *= 100
         down *= 100
@@ -64,7 +64,7 @@ if __name__ == '__main__':
         axes.axhline(0., c='black', lw=0.8, ls='dashed')
         
         axes.margins(x=0.)
-        axes.set_ylim(-halfRange * 100, halfRange * 100)
+        axes.set_ylim(-half_range * 100, half_range * 100)
         
         axes.legend(loc='upper right')
         axes.set_xlabel('$m_{t\\bar t}$ [GeV]')
@@ -75,30 +75,30 @@ if __name__ == '__main__':
             ha='center', va='bottom', transform=axes.transAxes
         )
         
-        fig.savefig(os.path.join(figDir, systName + '.pdf'))
+        fig.savefig(os.path.join(fig_dir, syst_name + '.pdf'))
         plt.close(fig)
     
     
     # All PDF variations are plotted in the same figure.  At the same
     # time identify small variations.
-    smallPDFVars = []
+    small_pdf_vars = []
     
     fig = plt.figure()
     axes = fig.add_subplot(111)
     
-    nPDF = 30
+    num_pdf = 30
     colourmap = plt.get_cmap('jet')
     
-    for iPDF in range(nPDF):
-        up = hist_to_np(templatesFile.Get('TT_PDF{}Up'.format(iPDF + 1))) / nominal - 1
+    for iPDF in range(num_pdf):
+        up = hist_to_np(templates_file.Get('TT_PDF{}Up'.format(iPDF + 1))) / nominal - 1
         up *= 100
         axes.hist(
             binning[:-1], bins=binning, weights=up,
-            color=colourmap(iPDF / (nPDF - 1)), histtype='step'
+            color=colourmap(iPDF / (num_pdf - 1)), histtype='step'
         )
         
         if np.max(up) < 0.1:
-            smallPDFVars.append(iPDF + 1)
+            small_pdf_vars.append(iPDF + 1)
     
     axes.axhline(0., c='black', lw=0.8, ls='dashed')
     
@@ -113,9 +113,9 @@ if __name__ == '__main__':
         ha='center', va='bottom', transform=axes.transAxes
     )
     
-    fig.savefig(os.path.join(figDir, 'PDF.pdf'))
+    fig.savefig(os.path.join(fig_dir, 'PDF.pdf'))
     plt.close(fig)
     
-    print('PDF variations smaller than 0.1% everywhere:', smallPDFVars)
+    print('PDF variations smaller than 0.1% everywhere:', small_pdf_vars)
     
-    templatesFile.Close()
+    templates_file.Close()

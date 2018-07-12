@@ -115,36 +115,36 @@ class XSecVLQ(PartonXSec):
 
 if __name__ == '__main__':
     
-    argParser = argparse.ArgumentParser(epilog=__doc__)
-    argParser.add_argument(
+    arg_parser = argparse.ArgumentParser(epilog=__doc__)
+    arg_parser.add_argument(
         '--cp', default='A',
         help='Desired CP state'
     )
-    argParser.add_argument(
+    arg_parser.add_argument(
         '-b', '--bkg', default=None,
         help='ROOT file with templates for SM tt'
     )
-    argParser.add_argument(
+    arg_parser.add_argument(
         '-l', '--lumi', type=float, default=150.,
         help='Target integrated luminosity, 1/fb'
     )
-    argParser.add_argument(
+    arg_parser.add_argument(
         '-r', '--resolution', type=float, default=0.2,
         help='Relative resolution in mtt'
     )
-    argParser.add_argument(
+    arg_parser.add_argument(
         '--save', default=None,
         help='Name of .npz file to store numeric results of the scan'
     )
-    argParser.add_argument(
+    arg_parser.add_argument(
         '--from-file', dest='from_file', default=None,
         help='Name of .npz file with results of a scan'
     )
-    argParser.add_argument(
+    arg_parser.add_argument(
         '-o', '--output', default='fig/significance.pdf',
         help='Name for output figure file'
     )
-    args = argParser.parse_args()
+    args = arg_parser.parse_args()
     
     if args.cp not in {'A', 'H'}:
         raise RuntimeError('Cannot recognize CP state "{}".'.format(args.cp))
