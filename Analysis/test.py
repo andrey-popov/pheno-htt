@@ -14,8 +14,8 @@ if __name__ == '__main__':
     mA = 500.
     tanbeta = 5.
     
-    significance_ref = 1.5227446521132153
-    cls_ref = 0.13491426645087826
+    significance_ref = 0.9155510617044962
+    cls_ref = 0.3621699755911078
     
     
     parton_xsec = hmssm.XSecHMSSM(mA, tanbeta, 'hMSSM_13TeV.root')

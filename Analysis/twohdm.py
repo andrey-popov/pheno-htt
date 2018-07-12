@@ -34,11 +34,12 @@ class XSecTwoHDM(PartonXSec):
         
         # Manually set naive scale factors for higher-order corrections.
         # The NLO k-factors for gg -> A/H are around 2, and the NNLO
-        # k-factor for SM tt is around 1.6.  Use the geometric mean of
-        # the two for the interference as suggested in [1].
-        # [1] Hespel et al., https://arxiv.org/abs/1606.04149
+        # k-factor for SM tt is also around 2 [1].  Use the geometric
+        # mean of the two for the interference as suggested in [2].
+        # [1] https://github.com/andrey-popov/pheno-htt/issues/2
+        # [2] Hespel et al., https://arxiv.org/abs/1606.04149
         self.kA_res = self.kH_res = 2.
-        k_bkg = 1.6
+        k_bkg = 2.
         self.kA_int = self.kH_int = math.sqrt(self.kA_res * k_bkg)
         
         # Set scale over which the cross section changes

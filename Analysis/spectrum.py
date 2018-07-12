@@ -270,6 +270,10 @@ class RecoMtt:
         # Branching ratio for targeted decays.  Set to l+jets, l = e/mu.
         self.target_branching = 8 / 27
         
+        # Efficiency of additional selection.  Set according to [1].
+        # [1] https://github.com/andrey-popov/pheno-htt/issues/1
+        self.add_sel_eff = 0.3
+        
         # Scale factor to vary renormalization scale
         self.muR_scale_factor = 1.
         
@@ -405,9 +409,8 @@ class RecoMtt:
         Return value:
             Efficiency.
         
-        Computed efficiency does not include efficiencies of lepton
-        identification or b-tagging, but it includes the branching
-        ratio for targeted decays.
+        Computed efficiency includes accounts for the branching ratio of
+        targeted decays, lepton identification, and b-tagging.
         """
         
         # Fitted parameters of a log-cubic approximation
@@ -418,7 +421,7 @@ class RecoMtt:
         else:
             raise RuntimeError('Do not recognize subprocess "{}".'.format(subprocess))
         
-        return np.polyval(coeffs, math.log(mtt)) * self.target_branching
+        return np.polyval(coeffs, math.log(mtt)) * self.target_branching * self.add_sel_eff
     
     
     def xsec(self, mtt, num_sigma=3):

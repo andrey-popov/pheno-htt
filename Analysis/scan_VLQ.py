@@ -53,9 +53,9 @@ class XSecVLQ(PartonXSec):
         
         self.var_scale = self.width_tt(cp, mass, g=g_tt)
         
-        # Naive k-factors
+        # Naive k-factors.  Set to the same values as for 2HDM.
         self.k_res = 2.
-        self.k_int = math.sqrt(2. * 1.6)
+        self.k_int = math.sqrt(2. * 2.)
     
     
     def xsec_res(self, sqrt_s, alpha_s):

@@ -21,7 +21,7 @@ rm -r hists
 Internally, this executes program [mtt-hists](../EventProcessing/prog/mtt-hists.cpp) for SM tt ROOT files produced in section &ldquo;[Generation/Showering](../Generation/Showering)&rdquo;.
 A default smearing of 20% is applied to mimic reconstruction effects; its value can be configured if needed.
 Script [`buildTemplates.py`](buildTemplates.py) combines all histograms in a single file `ttbar.root`.
-It also applies a k-factor of 1.6.
+It also applies a k-factor of 2 and efficiency of additional event selection.
 All templates are normalized to an integrated luminosity of 1&thinsp;pb<sup>-1</sup>.
 Constructed systematic variations can be plotted using script [`plotVariations.py`](plotVariations.py).
 
@@ -41,7 +41,7 @@ Produced file `ttbar_res20.root` with nominal m<sub>tt</sub> in SM tt and its sy
 
 Analytical parton-level cross sections for the signal (both the resonant part and interference) in hMSSM are provided in module [`hmssm.py`](hmssm.py).
 Dependent parameters of the model are computed for given m<sub>A</sub> and tan&thinsp;&beta; using file `hMSSM_13TeV.root`, which must be downloaded from [here](https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHXSWGMSSMNeutral?rev=104#ROOT_histograms_MSSM_benchmark_s).
-The module applies rough k-factors to account for higher-order corrections in the gg&Phi; form-factor; they are set to 2 and around 1.8 for the resonant part and interference, respectively.
+The module applies rough k-factors to account for higher-order corrections in the gg&Phi; form-factor; they are set to 2 for both the resonant part and the interference.
 
 In order to accelerate the convolution of the parton-level cross sections with the PDF, one of the involved integrals over Bjorken&nbsp;x of the incoming gluons is precomputed with
 ```sh

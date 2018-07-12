@@ -21,7 +21,7 @@ class HistAggregator:
     number of generated events, and a k-factor is applied.
     """
     
-    def __init__(self, output_name, num_events, k_factor=1.):
+    def __init__(self, output_name, num_events, k_factor=1., sel_eff=1.):
         """Initializer.
         
         Arguments:
@@ -30,11 +30,12 @@ class HistAggregator:
                 selection.
             k_factor:  Scale factor to account for higher-order
                 corrections.
+            sel_eff:  Efficiency of additional selection to be
+                implemented as event weights.
         """
         
         self.output_file = ROOT.TFile(output_name, 'recreate')
-        self.k_factor = k_factor
-        self.num_events = num_events
+        self.scale_factor = k_factor * sel_eff / num_events
         self.hists = []
     
     
@@ -68,7 +69,7 @@ class HistAggregator:
         if hist_write_name:
             hist.SetName(hist_write_name)
         
-        hist.Scale(self.k_factor / self.num_events)
+        hist.Scale(self.scale_factor)
         
         # Associate the histogram with the output file and put it into a
         # list so that it is not deleted by garbage collector
@@ -111,7 +112,11 @@ if __name__ == '__main__':
     
     ROOT.gROOT.SetBatch(True)
     
-    aggregator = HistAggregator('ttbar.root', 5000000, k_factor=1.6)
+    # Efficiency of lepton ID and b-tagging selection as well as a
+    # k-factor for SM tt are included according to [1-2].
+    # [1] https://github.com/andrey-popov/pheno-htt/issues/1
+    # [2] https://github.com/andrey-popov/pheno-htt/issues/2
+    aggregator = HistAggregator('ttbar.root', 5000000, sel_eff=0.3, k_factor=2.0)
     
     main_input_file = ROOT.TFile('hists/ttbar.root')
     
