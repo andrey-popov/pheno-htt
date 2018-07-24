@@ -184,7 +184,12 @@ if __name__ == '__main__':
         
         # Save results of the scan if requested
         if args.save:
-            scanner.save(args.save)
+            scan_dir = os.path.dirname(args.save)
+            
+            if scan_dir and not os.path.exists(scan_dir):
+                os.makedirs(scan_dir)
+            
+            grid.save(args.save)
     
     else:
         # If reading scan results from a file, just load them
