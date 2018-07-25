@@ -450,11 +450,13 @@ class StatCalc:
         Return value:
             None.
         
-        As a side effect, invalidate precomputed signal templates.
+        As a side effect, invalidate precomputed signal templates and
+        the workspace.
         """
         
         self.signal_distr_calc = signal_distr
         self._signal_templates = None
+        self._workspace = None
 
 
     def _build_model(self):
@@ -475,30 +477,33 @@ class StatCalc:
         measurement.SetLumi(self.lumi)
         
         
+        # Define all samples and corresponding systematic variations.
+        # Clone all histograms because HistFactory takes ownership of
+        # them for no reason.
         channel = HistFactory.Channel('Channel')
         
         sgn_pos = HistFactory.Sample('SgnPos')
-        sgn_pos.SetHisto(self._signal_templates['SgnPos'])
+        sgn_pos.SetHisto(self._signal_templates['SgnPos'].Clone(uuid4().hex))
         sgn_pos.AddNormFactor('r', 1., 0., 10., True)
         sgn_pos.SetNormalizeByTheory(True)
         
         syst = HistFactory.HistoSys('RenormScale')
-        syst.SetHistoHigh(self._signal_templates['SgnPos_RenormScaleUp'])
-        syst.SetHistoLow(self._signal_templates['SgnPos_RenormScaleDown'])
+        syst.SetHistoHigh(self._signal_templates['SgnPos_RenormScaleUp'].Clone(uuid4().hex))
+        syst.SetHistoLow(self._signal_templates['SgnPos_RenormScaleDown'].Clone(uuid4().hex))
         sgn_pos.AddHistoSys(syst)
         
         sgn_neg = HistFactory.Sample('SgnNeg')
-        sgn_neg.SetHisto(self._signal_templates['SgnNeg'])
+        sgn_neg.SetHisto(self._signal_templates['SgnNeg'].Clone(uuid4().hex))
         sgn_neg.AddNormFactor('negR', -1., -10., 0., True)
         sgn_neg.SetNormalizeByTheory(True)
         
         syst = HistFactory.HistoSys('RenormScale')
-        syst.SetHistoHigh(self._signal_templates['SgnNeg_RenormScaleUp'])
-        syst.SetHistoLow(self._signal_templates['SgnNeg_RenormScaleDown'])
+        syst.SetHistoHigh(self._signal_templates['SgnNeg_RenormScaleUp'].Clone(uuid4().hex))
+        syst.SetHistoLow(self._signal_templates['SgnNeg_RenormScaleDown'].Clone(uuid4().hex))
         sgn_neg.AddHistoSys(syst)
         
         bkg = HistFactory.Sample('TT')
-        bkg.SetHisto(self._bkg_templates['TT'])
+        bkg.SetHisto(self._bkg_templates['TT'].Clone(uuid4().hex))
         bkg.AddOverallSys('TTRate', 0.9, 1.1)
         
         systNames = ['MttScale', 'RenormScale', 'FactorScale', 'FSR', 'MassT', 'PDFAlphaS']
@@ -506,8 +511,8 @@ class StatCalc:
         
         for systName in systNames:
             syst = HistFactory.HistoSys(systName)
-            syst.SetHistoHigh(self._bkg_templates['TT_{}Up'.format(systName)])
-            syst.SetHistoLow(self._bkg_templates['TT_{}Down'.format(systName)])
+            syst.SetHistoHigh(self._bkg_templates['TT_{}Up'.format(systName)].Clone(uuid4().hex))
+            syst.SetHistoLow(self._bkg_templates['TT_{}Down'.format(systName)].Clone(uuid4().hex))
             bkg.AddHistoSys(syst)
         
         
