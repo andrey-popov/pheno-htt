@@ -197,14 +197,13 @@ class PlotScan:
             attributes.
         """
         
-        # Up-sample the arrays to produce smooth colour map and
-        # contours
-        x_up, y_up, significance_up, cls_up = self._upsample(10)
-        
-        
         self.fig = plt.figure()
         self.fig.patch.set_alpha(0.)  # Transparent background
         self.axes = self.fig.add_subplot(111)
+        
+        
+        # Up-sample the arrays to produce a smooth colour map
+        x_up, y_up, significance_up, cls_up = self._upsample(3)
         
         
         # Plot significance with a colour map.  Coordinates of grid
@@ -223,7 +222,10 @@ class PlotScan:
         )
         
         
-        # Draw contours
+        # Draw contours.  Up-sample the arrays with a higher factor to
+        # produce smooth contours.  Can afford a larger factor as it
+        # does not increase the size of the output file much.
+        x_up, y_up, significance_up, cls_up = self._upsample(10)
         xx, yy = np.meshgrid(x_up, y_up)
         
         contours = self.axes.contour(
