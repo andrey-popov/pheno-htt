@@ -203,6 +203,7 @@ class PlotScan:
         
         
         self.fig = plt.figure()
+        self.fig.patch.set_alpha(0.)  # Transparent background
         self.axes = self.fig.add_subplot(111)
         
         

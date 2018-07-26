@@ -61,8 +61,11 @@ if __name__ == '__main__':
     
     fig_dir = os.path.dirname(args.output)
     
-    if fig_dir and not os.path.exists(fig_dir):
-        os.makedirs(fig_dir)
+    if fig_dir:
+        try:
+            os.makedirs(fig_dir)
+        except FileExistsError:
+            pass
     
     
     if not args.from_file:
@@ -99,8 +102,11 @@ if __name__ == '__main__':
         if args.save:
             scan_dir = os.path.dirname(args.save)
             
-            if scan_dir and not os.path.exists(scan_dir):
-                os.makedirs(scan_dir)
+            if scan_dir:
+                try:
+                    os.makedirs(scan_dir)
+                except FileExistsError:
+                    pass
             
             grid.save(args.save)
     
@@ -122,12 +128,12 @@ if __name__ == '__main__':
     )
     
     if args.lumi >= 1e3:
-        lumiText = '{:g} ab$^{{-1}}$'.format(args.lumi / 1e3)
+        lumi_text = '{:g} ab$^{{-1}}$'.format(args.lumi / 1e3)
     else:
-        lumiText = '{:g} fb$^{{-1}}$'.format(args.lumi)
+        lumi_text = '{:g} fb$^{{-1}}$'.format(args.lumi)
     
     axes.text(
-        1., 1.005, 'Resolution {:g}%, $L = ${}'.format(args.resolution * 100, lumiText),
+        1., 1.005, 'Resolution {:g}%, $L = ${}'.format(args.resolution * 100, lumi_text),
         ha='right', va='bottom', transform=axes.transAxes
     )
     
