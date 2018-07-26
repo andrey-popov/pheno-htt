@@ -72,7 +72,23 @@ if __name__ == '__main__':
         
         # Perform the scan if not reading results from a file
         mass_values = list(np.arange(350, 701, 25)) + list(np.arange(750, 1001, 50))
-        g_values = [0.1] + list(np.arange(0.25, 5.01, 0.25))
+        
+        if args.resolution < 0.15:
+            if args.lumi < 200.:
+                g_max = 3.
+            elif args.lumi < 500.:
+                g_max = 2.
+            else:
+                g_max = 1.5
+        else:
+            if args.lumi < 200.:
+                g_max = 5.
+            elif args.lumi < 500.:
+                g_max = 4.
+            else:
+                g_max = 3.
+        
+        g_values = np.linspace(0.1, g_max, num=20)
         
         grid = statscan.Grid(mass_values, g_values)
         calc = statscan.StatCalc(None, args.bkg, args.lumi * 1e3)

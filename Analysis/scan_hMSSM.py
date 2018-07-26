@@ -65,7 +65,23 @@ if __name__ == '__main__':
         
         # Perform the scan if not reading results from a file
         mA_values = np.arange(350, 1001, 25)
-        tanbeta_values = np.arange(0.75, 5.1, 0.25)
+        
+        if args.resolution < 0.15:
+            if args.lumi < 200.:
+                max_tanbeta = 5.
+            elif args.lumi < 500.:
+                max_tanbeta = 6.
+            else:
+                max_tanbeta = 7.
+        else:
+            if args.lumi < 200.:
+                max_tanbeta = 3.
+            elif args.lumi < 500.:
+                max_tanbeta = 4.
+            else:
+                max_tanbeta = 5.
+        
+        tanbeta_values = np.arange(0.75, max_tanbeta + 1e-3, 0.25)
         
         grid = statscan.Grid(mA_values, tanbeta_values)
         calc = statscan.StatCalc(None, args.bkg, args.lumi * 1e3)
