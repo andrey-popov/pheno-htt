@@ -113,11 +113,154 @@ class XSecVLQ(PartonXSec):
 
 
 
+def scan_masses(args, lumi_text):
+    """Scan over masses of the Higgs boson and VLQ.
+    
+    Set all couplings and the number of VLQ species to 1.
+    
+    Arguments:
+        args:  Arguments given to the script.
+        lumi_text:  Integrated luminosity converted to text.
+    
+    Return value:
+        None.
+    """
+    
+    if not args.from_file:
+        
+        # Perform the scan if not reading results from a file
+        higgs_masses = np.arange(350, 1001, 50)
+        vlq_masses = np.arange(300, 2001, 100)
+        
+        ### Rough scan
+        higgs_masses = [500., 700., 1000.]
+        vlq_masses = [500., 1000., 1500., 2e3, 3e3, 5e3, 10e3, 15e3]
+        
+        grid = statscan.Grid(higgs_masses, vlq_masses)
+        calc = statscan.StatCalc(None, args.bkg, args.lumi * 1e3)
+        
+        for i, mH, mass_vlq in grid:
+            
+            parton_xsec = XSecVLQ(args.cp, mH, mass_vlq)
+            reco_mtt = RecoMtt(parton_xsec, resolution=args.resolution)
+            calc.update_signal(reco_mtt)
+            
+            significance = calc.significance()
+            cls = calc.cls()
+            
+            print('\033[1;34mResults for m{} = {:g}, mVLQ = {:g}:'.format(args.cp, mH, mass_vlq))
+            print('  Significance: {}\n  CLs: {}\033[0m'.format(significance, cls))
+            grid.set(i, significance, cls)
+        
+        
+        # Save results of the scan if requested
+        if args.save:
+            grid.save(args.save)
+    
+    else:
+        # If reading scan results from a file, just load them
+        grid = statscan.Grid.fromfile(args.from_file)
+    
+    
+    # Plot results of the scan
+    plotter = statscan.PlotScan(grid)
+    fig, axes = plotter.draw()
+    
+    axes.set_xlabel('$m_{}$ [GeV]'.format(args.cp))
+    axes.set_ylabel('$m_{Q}$ [GeV]')
+    
+    axes.text(
+        0., 1.005, 'VLQ, CP-{} Higgs boson'.format('odd' if args.cp == 'A' else 'even'),
+        ha='left', va='bottom', transform=axes.transAxes
+    )
+    
+    axes.text(
+        1., 1.005, 'Resolution {:g}%, $L = ${}'.format(args.resolution * 100, lumi_text),
+        ha='right', va='bottom', transform=axes.transAxes
+    )
+    
+    fig.savefig(args.output)
+
+
+def scan_vlq_properties(args, lumi_text, mass_higgs=700.):
+    """Scan over properties of VLQ for given mass of the Higgs boson.
+    
+    Set the coupling of the Higgs boson to top quarks to 1.
+    
+    Arguments:
+        args:  Arguments given to the script.
+        lumi_text:  Integrated luminosity converted to text.
+        mass_higgs:  Mass of the Higgs boson, in GeV.
+    
+    Return value:
+        None.
+    """
+    
+    if not args.from_file:
+        
+        # Perform the scan if not reading results from a file
+        vlq_masses = np.arange(300, 2001, 100)
+        vlq_couplings = np.arange(0.25, 5.01, 0.25)
+        
+        ### Rough scan
+        vlq_masses = [300., 500., 1000., 1500.]
+        vlq_couplings = [1e-2, 0.05, 0.1, 0.2, 0.5, 1., 2., 3.]
+        
+        grid = statscan.Grid(vlq_masses, vlq_couplings)
+        calc = statscan.StatCalc(None, args.bkg, args.lumi * 1e3)
+        
+        for i, mass_vlq, g_vlq in grid:
+            
+            parton_xsec = XSecVLQ(args.cp, mass_higgs, mass_vlq, g_vlq=g_vlq)
+            reco_mtt = RecoMtt(parton_xsec, resolution=args.resolution)
+            calc.update_signal(reco_mtt)
+            
+            significance = calc.significance()
+            cls = calc.cls()
+            
+            print('\033[1;34mResults for mVLQ = {:g}, gVLQ = {:g}:'.format(mass_vlq, g_vlq))
+            print('  Significance: {}\n  CLs: {}\033[0m'.format(significance, cls))
+            grid.set(i, significance, cls)
+        
+        
+        # Save results of the scan if requested
+        if args.save:
+            grid.save(args.save)
+    
+    else:
+        # If reading scan results from a file, just load them
+        grid = statscan.Grid.fromfile(args.from_file)
+    
+    
+    # Plot results of the scan
+    plotter = statscan.PlotScan(grid)
+    fig, axes = plotter.draw()
+    
+    axes.set_xlabel('$m_{Q}$ [GeV]')
+    axes.set_ylabel('$\\hat g_{{{}QQ}} \\times N_{{Q}}$'.format(args.cp))
+    
+    axes.text(
+        0., 1.005, 'VLQ, CP-{} Higgs boson'.format('odd' if args.cp == 'A' else 'even'),
+        ha='left', va='bottom', transform=axes.transAxes
+    )
+    
+    axes.text(
+        1., 1.005, 'Resolution {:g}%, $L = ${}'.format(args.resolution * 100, lumi_text),
+        ha='right', va='bottom', transform=axes.transAxes
+    )
+    
+    fig.savefig(args.output)
+
+
+
 if __name__ == '__main__':
     
     arg_parser = argparse.ArgumentParser(epilog=__doc__)
     arg_parser.add_argument(
-        '--cp', default='A',
+        'type', help='Type of scan, "masses" or "properties"'
+    )
+    arg_parser.add_argument(
+        '--cp', default='H',
         help='Desired CP state'
     )
     arg_parser.add_argument(
@@ -146,6 +289,9 @@ if __name__ == '__main__':
     )
     args = arg_parser.parse_args()
     
+    if args.type not in {'masses', 'properties'}:
+        raise RuntimeError('Cannot recognize type of scan "{}".'.format(args.type))
+    
     if args.cp not in {'A', 'H'}:
         raise RuntimeError('Cannot recognize CP state "{}".'.format(args.cp))
     
@@ -155,67 +301,30 @@ if __name__ == '__main__':
     
     fig_dir = os.path.dirname(args.output)
     
-    if fig_dir and not os.path.exists(fig_dir):
-        os.makedirs(fig_dir)
+    if fig_dir:
+        try:
+            os.makedirs(fig_dir)
+        except FileExistsError:
+            pass
     
-    
-    if not args.from_file:
+    if args.save:
+        scan_dir = os.path.dirname(args.save)
         
-        # Perform the scan if not reading results from a file
-        higgs_masses = np.arange(350, 1001, 50)
-        vlq_masses = np.arange(1000, 2001, 100)
-        
-        grid = statscan.Grid(higgs_masses, vlq_masses)
-        calc = statscan.StatCalc(None, args.bkg, args.lumi * 1e3)
-        
-        for i, mH, mass_vlq in grid:
-            
-            parton_xsec = XSecVLQ(args.cp, mH, mass_vlq)
-            reco_mtt = RecoMtt(parton_xsec, resolution=args.resolution)
-            calc.update_signal(reco_mtt)
-            
-            significance = calc.significance()
-            cls = calc.cls()
-            
-            print('\033[1;34mResults for mH = {:g}, mVLQ = {:g}:'.format(mH, mass_vlq))
-            print('  Significance: {}\n  CLs: {}\033[0m'.format(significance, cls))
-            grid.set(i, significance, cls)
-        
-        
-        # Save results of the scan if requested
-        if args.save:
-            scan_dir = os.path.dirname(args.save)
-            
-            if scan_dir and not os.path.exists(scan_dir):
+        if scan_dir:
+            try:
                 os.makedirs(scan_dir)
-            
-            grid.save(args.save)
-    
-    else:
-        # If reading scan results from a file, just load them
-        grid = statscan.Grid.fromfile(args.from_file)
-    
-    
-    # Plot results of the scan
-    plotter = statscan.PlotScan(grid)
-    fig, axes = plotter.draw()
-    
-    axes.set_xlabel('$m_{}$ [GeV]'.format(args.cp))
-    axes.set_ylabel('$m_\\mathrm{VLQ}$ [GeV]')
-    
-    axes.text(
-        0., 1.005, 'Vector-like quarks, CP-{}'.format('odd' if args.cp == 'A' else 'H'),
-        ha='left', va='bottom', transform=axes.transAxex
-    )
+            except FileExistsError:
+                pass
+        
+        grid.save(args.save)
     
     if args.lumi >= 1e3:
-        lumiText = '{:g} ab$^{{-1}}$'.format(args.lumi / 1e3)
+        lumi_text = '{:g} ab$^{{-1}}$'.format(args.lumi / 1e3)
     else:
-        lumiText = '{:g} fb$^{{-1}}$'.format(args.lumi)
+        lumi_text = '{:g} fb$^{{-1}}$'.format(args.lumi)
     
-    axes.text(
-        1., 1.005, 'Resolution {:g}%, $L = ${}'.format(args.resolution * 100, lumiText),
-        ha='right', va='bottom', transform=axes.transAxes
-    )
     
-    fig.savefig(args.output)
+    if args.type == 'masses':
+        scan_masses(args, lumi_text)
+    else:
+        scan_vlq_properties(args, lumi_text)
