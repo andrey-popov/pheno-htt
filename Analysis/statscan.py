@@ -179,7 +179,7 @@ class PlotScan:
                 val[...] = self.max_significance
         
         for val in np.nditer(self.cls, op_flags=['readwrite']):
-            if not np.isfinite(val):
+            if not np.isfinite(val) or val < 0.:
                 val[...] = 0.
         
         self.fig = None
