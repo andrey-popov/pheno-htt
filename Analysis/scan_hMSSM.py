@@ -88,7 +88,7 @@ if __name__ == '__main__':
         
         for i, mA, tanbeta in grid:
             
-            parton_xsec = hmssm.XSecHMSSM(mA, tanbeta, 'hMSSM_13TeV.root')
+            parton_xsec = hmssm.XSecHMSSM(mA, tanbeta, 'params/hMSSM.root')
             reco_mtt = RecoMtt(parton_xsec, resolution=args.resolution)
             calc.update_signal(reco_mtt)
             

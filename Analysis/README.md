@@ -4,7 +4,8 @@ In this section phenomenological analysis is performed.
 SM tt background is described using MC simulation, as documented in section &ldquo;[Generation](../Generation)&rdquo;, while signal distributions are constructed on the fly.
 
 Dependencies:
- * [ROOT](root.cern.ch) 6.10/04.
+
+ * [ROOT](root.cern.ch) 6.14/04.
  * [LHAPDF](https://lhapdf.hepforge.org/) 6.1.6 with Python bindings. Download PDF set `PDF4LHC15_nlo_30_pdfas` (LHAPDF ID 90400).
  * Python 3.5.
  * [NumPy](http://numpy.org) 1.13.1, [SciPy](https://scipy.org/scipylib/index.html) 0.18.1, [Matplotlib](https://matplotlib.org) 2.0.2.
@@ -40,8 +41,7 @@ Produced file `ttbar_res20.root` with nominal m<sub>tt</sub> in SM tt and its sy
 ## Signal
 
 Analytical parton-level cross sections for the signal (both the resonant part and interference) in hMSSM are provided in module [`hmssm.py`](hmssm.py).
-Dependent parameters of the model are computed for given m<sub>A</sub> and tan&thinsp;&beta; using file `hMSSM_13TeV.root`, which must be downloaded from [here](https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHXSWGMSSMNeutral?rev=104#ROOT_histograms_MSSM_benchmark_s).
-The module applies rough k-factors to account for higher-order corrections in the gg&Phi; form-factor; they are set to 2 for both the resonant part and the interference.
+The module applies rough k-factors to account for higher-order corrections in the gg&Phi; form-factor.
 
 In order to accelerate the convolution of the parton-level cross sections with the PDF, one of the involved integrals over Bjorken&nbsp;x of the incoming gluons is precomputed with
 ```sh

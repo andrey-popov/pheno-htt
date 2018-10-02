@@ -18,7 +18,7 @@ if __name__ == '__main__':
     cls_ref = 0.3621699755911078
     
     
-    parton_xsec = hmssm.XSecHMSSM(mA, tanbeta, 'hMSSM_13TeV.root')
+    parton_xsec = hmssm.XSecHMSSM(mA, tanbeta, 'params/hMSSM.root')
     reco_mtt = RecoMtt(parton_xsec, resolution=0.1)
     calc = statscan.StatCalc(reco_mtt, 'ttbar_res10.root', 150e3)
     
