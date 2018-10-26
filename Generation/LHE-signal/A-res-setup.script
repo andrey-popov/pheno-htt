@@ -1,0 +1,6 @@
+import model HeavyHiggs
+
+generate g g > a0 > t t~, (t > b w+, w+ > lt+ vl), (t~ > b~ w-, w- > j j)
+add process g g > a0 > t t~, (t > b w+, w+ > j j), (t~ > b~ w-, w- > lt- vl~)
+
+output A-res

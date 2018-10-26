@@ -1,0 +1,6 @@
+import model HeavyHiggs
+
+generate g g > t t~ / h0 HIG=2, (t > b w+, w+ > lt+ vl), (t~ > b~ w-, w- > j j)
+add process g g > t t~ / h0 HIG=2, (t > b w+, w+ > j j), (t~ > b~ w-, w- > lt- vl~)
+
+output A-int

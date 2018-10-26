@@ -11,39 +11,42 @@ import os
 
 if __name__ == '__main__':
     
-    argParser = argparse.ArgumentParser(epilog=__doc__)
-    argParser.add_argument('directory', help='MadEvent directory')
-    argParser.add_argument(
+    arg_parser = argparse.ArgumentParser(epilog=__doc__)
+    arg_parser.add_argument('directory', help='MadEvent directory')
+    arg_parser.add_argument(
         '--mt', type=float, default=173.,
         help='Mass of top quark, GeV'
     )
-    argParser.add_argument(
+    arg_parser.add_argument(
         '-n', type=int, default=5000000,
         help='Number of events to generate'
     )
-    argParser.add_argument(
+    arg_parser.add_argument(
         '--split', type=int, default=100000,
         help='Number of events per LHE file'
     )
-    argParser.add_argument(
+    arg_parser.add_argument(
         '-o', '--output', default='configs/ttbar',
         help='Prefix for the name of configuration files to be produced'
     )
-    args = argParser.parse_args()
+    args = arg_parser.parse_args()
     
     
-    outputDir = os.path.dirname(args.output)
+    output_dir = os.path.dirname(args.output)
     
-    if outputDir and not os.path.exists(outputDir):
-        os.makedirs(outputDir)
+    if output_dir:
+        try:
+            os.makedirs(output_dir)
+        except FileExistsError:
+            pass
     
     
-    for iClone in range(int(round(args.n / args.split))):
+    for iclone in range(int(round(args.n / args.split))):
         
-        jobName = os.path.basename('{}_{}'.format(args.output, iClone + 1))
-        outFile = open('{}_{}.script'.format(args.output, iClone + 1), 'w')
+        job_name = os.path.basename('{}_{}'.format(args.output, iclone + 1))
+        outfile = open('{}_{}.script'.format(args.output, iclone + 1), 'w')
         
-        outFile.write('launch {} -n {}\n'.format(args.directory, jobName))
+        outfile.write('launch {} -n {}\n'.format(args.directory, job_name))
         indent = ' ' * 2
         
         for line in [
@@ -64,7 +67,7 @@ if __name__ == '__main__':
             '',
             'done',
         ]:
-            outFile.write('{}{}\n'.format(indent, line))
+            outfile.write('{}{}\n'.format(indent, line))
         
-        outFile.write('\n')
-        outFile.close()
+        outfile.write('\n')
+        outfile.close()
