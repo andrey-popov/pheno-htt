@@ -79,8 +79,8 @@ class XSecVLQ(PartonXSec):
             beta_power = 1
         
         a = 3 * (alpha_s * self.gF * self.mt) ** 2 / (8192 * math.pi ** 3)
-        loop_ampl = self.g_tt * self.loop_ampl(self.cp, s, mf=self.mt) \
-            + self.num_vlq * self.g_vlq * self.loop_ampl(self.cp, s, mf=self.mass_vlq)
+        loop_ampl = self.g_tt * self.loop_ampl_fermion(self.cp, s, mf=self.mt) \
+            + self.num_vlq * self.g_vlq * self.loop_ampl_fermion(self.cp, s, mf=self.mass_vlq)
         denom = (s - self.mass ** 2) ** 2 + (width * self.mass) ** 2
         
         xsec = 2 * a * s ** 2 * self.beta(s) ** beta_power * self.g_tt ** 2 \
@@ -109,8 +109,8 @@ class XSecVLQ(PartonXSec):
         # Factor dependent on z has been integrated
         b = math.log((1 + beta) / (1 - beta)) / beta
         
-        loop_ampl = self.g_tt * self.loop_ampl(self.cp, s, mf=self.mt) \
-            + self.num_vlq * self.g_vlq * self.loop_ampl(self.cp, s, mf=self.mass_vlq)
+        loop_ampl = self.g_tt * self.loop_ampl_fermion(self.cp, s, mf=self.mt) \
+            + self.num_vlq * self.g_vlq * self.loop_ampl_fermion(self.cp, s, mf=self.mass_vlq)
         propagator = s - self.mass ** 2 + 1j * width * self.mass
         
         xsec = a * b * beta ** beta_power * self.g_tt * (loop_ampl / propagator).real

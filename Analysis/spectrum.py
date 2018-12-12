@@ -64,7 +64,7 @@ class PartonXSec(abc.ABC):
     
     
     @staticmethod
-    def loop_ampl(cp, s, mf=None):
+    def loop_ampl_fermion(cp, s, mf=None):
         """Compute fermionic loop amplitude.
         
         Amplitudes associated with the fermion loop attached to a Higgs
