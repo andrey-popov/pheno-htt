@@ -112,7 +112,7 @@ class XSecMSSM(PartonXSec):
         # Contributions from CP-odd state
         denom = (s - self.mA ** 2) ** 2 + (self.wA * self.mA) ** 2
         ampl = self.gA_top ** 2 * self.loop_ampl_fermion('A', s)
-        sum_scalars += beta * abs(ampl) ** 2 / denom
+        sum_scalars += self.kA_res * beta * abs(ampl) ** 2 / denom
         
         # Contribution from CP-even state
         denom = (s - self.mH ** 2) ** 2 + (self.wH * self.mH) ** 2
@@ -122,7 +122,7 @@ class XSecMSSM(PartonXSec):
             ampl += self.gH_top * gH_stop * (self.mt / m_stop) ** 2 * \
                 self.loop_ampl_scalar('H', s, m_stop)
         
-        sum_scalars += beta ** 3 * abs(ampl) ** 2 / denom
+        sum_scalars += self.kH_res * beta ** 3 * abs(ampl) ** 2 / denom
         
         return self.to_pb(2 * prefactor * s ** 2 * sum_scalars)
     
@@ -146,7 +146,7 @@ class XSecMSSM(PartonXSec):
         # Contribution from CP-odd state
         denom = s - self.mA ** 2 + 1j * self.wA * self.mA
         ampl = self.gA_top ** 2 * self.loop_ampl_fermion('A', s)
-        sum_scalars += beta * ampl / denom
+        sum_scalars += self.kA_int * beta * ampl / denom
         
         # Contribution from CP-even state
         denom = s - self.mH ** 2 + 1j * self.wH * self.mH
@@ -156,7 +156,7 @@ class XSecMSSM(PartonXSec):
             ampl += self.gH_top * gH_stop * (self.mt / m_stop) ** 2 * \
                 self.loop_ampl_scalar('H', s, m_stop)
         
-        sum_scalars += beta ** 3 * ampl / denom
+        sum_scalars += self.kH_int * beta ** 3 * ampl / denom
         
         return self.to_pb(prefactor * integral * sum_scalars.real)
 
