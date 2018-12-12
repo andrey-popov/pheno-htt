@@ -150,7 +150,7 @@ class XSecMSSM(PartonXSec):
         
         # Contribution from CP-even state
         denom = s - self.mH ** 2 + 1j * self.wH * self.mH
-        ampl = self.gH_top ** 2 * self.loop_ampl_fermion('A', s)
+        ampl = self.gH_top ** 2 * self.loop_ampl_fermion('H', s)
         
         for m_stop, gH_stop in [(self.m_stop1, self.gH_stop1), (self.m_stop2, self.gH_stop2)]:
             ampl += self.gH_top * gH_stop * (self.mt / m_stop) ** 2 * \
