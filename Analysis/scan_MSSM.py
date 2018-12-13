@@ -101,7 +101,7 @@ class XSecMSSM(PartonXSec):
         
         s = sqrt_s ** 2
         
-        if s < 4 * self.mt ** 2:
+        if s <= 4 * self.mt ** 2:
             return 0.
         
         prefactor = 3 * (alpha_s * self.gF * self.mt) ** 2 / (8192 * math.pi ** 3)
@@ -132,7 +132,7 @@ class XSecMSSM(PartonXSec):
         
         s = sqrt_s ** 2
         
-        if s < 4 * self.mt ** 2:
+        if s <= 4 * self.mt ** 2:
             return 0.
         
         prefactor = - alpha_s ** 2 * self.gF * self.mt ** 2 / (64 * math.sqrt(2) * math.pi)

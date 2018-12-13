@@ -68,7 +68,7 @@ class XSecVLQ(PartonXSec):
         
         s = sqrt_s ** 2
         
-        if s < 4 * self.mt ** 2:
+        if s <= 4 * self.mt ** 2:
             return 0.
         
         width = self.width_tt(self.cp, self.mass, s, g=self.g_tt)
@@ -93,7 +93,7 @@ class XSecVLQ(PartonXSec):
         
         s = sqrt_s ** 2
         
-        if s < 4 * self.mt ** 2:
+        if s <= 4 * self.mt ** 2:
             return 0.
         
         beta = self.beta(s)

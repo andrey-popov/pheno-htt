@@ -83,7 +83,7 @@ class XSecTwoHDM(PartonXSec):
         
         s = sqrt_s ** 2
         
-        if s < 4 * self.mt ** 2:
+        if s <= 4 * self.mt ** 2:
             return 0.
         
         beta = self.beta(s)
@@ -101,7 +101,7 @@ class XSecTwoHDM(PartonXSec):
         
         s = sqrt_s ** 2
         
-        if s < 4 * self.mt ** 2:
+        if s <= 4 * self.mt ** 2:
             return 0.
         
         beta = self.beta(s)
@@ -121,7 +121,7 @@ class XSecTwoHDM(PartonXSec):
         
         s = sqrt_s ** 2
         
-        if s < 4 * self.mt ** 2:
+        if s <= 4 * self.mt ** 2:
             return 0.
         
         beta = self.beta(s)
@@ -139,7 +139,7 @@ class XSecTwoHDM(PartonXSec):
         
         s = sqrt_s ** 2
         
-        if s < 4 * self.mt ** 2:
+        if s <= 4 * self.mt ** 2:
             return 0.
         
         beta = self.beta(s)
