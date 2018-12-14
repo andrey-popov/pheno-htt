@@ -266,7 +266,7 @@ if __name__ == '__main__':
     axes.set_xlabel('$m_A$ [GeV]')
     axes.set_ylabel('$\\tan\/\\beta$')
     
-    axes.text(0., 1.005, 'hMSSM', ha='left', va='bottom', transform=axes.transAxes)
+    axes.text(0., 1.005, 'MSSM', ha='left', va='bottom', transform=axes.transAxes)
     
     if args.lumi >= 1e3:
         lumi_text = '{:g} ab$^{{-1}}$'.format(args.lumi / 1e3)
