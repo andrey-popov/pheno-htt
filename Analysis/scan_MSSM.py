@@ -119,7 +119,7 @@ class XSecMSSM(PartonXSec):
         ampl = self.gH_top ** 2 * self.loop_ampl_fermion('H', s)
         
         for m_stop, gH_stop in [(self.m_stop1, self.gH_stop1), (self.m_stop2, self.gH_stop2)]:
-            ampl += self.gH_top * gH_stop * (self.mt / m_stop) ** 2 * \
+            ampl += self.gH_top * gH_stop * (self.mt / m_stop) ** 2 / 2 * \
                 self.loop_ampl_scalar('H', s, m_stop)
         
         sum_scalars += self.kH_res * beta ** 3 * abs(ampl) ** 2 / denom
@@ -153,7 +153,7 @@ class XSecMSSM(PartonXSec):
         ampl = self.gH_top ** 2 * self.loop_ampl_fermion('H', s)
         
         for m_stop, gH_stop in [(self.m_stop1, self.gH_stop1), (self.m_stop2, self.gH_stop2)]:
-            ampl += self.gH_top * gH_stop * (self.mt / m_stop) ** 2 * \
+            ampl += self.gH_top * gH_stop * (self.mt / m_stop) ** 2 / 2 * \
                 self.loop_ampl_scalar('H', s, m_stop)
         
         sum_scalars += self.kH_int * beta ** 3 * ampl / denom
