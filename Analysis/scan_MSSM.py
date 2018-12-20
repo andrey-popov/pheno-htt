@@ -207,7 +207,7 @@ if __name__ == '__main__':
     if not args.from_file:
         
         # Perform the scan if not reading results from a file
-        mA_values = np.arange(350, 1001, 25)
+        mA_values = np.arange(350, 651, 12.5)
         
         if args.resolution < 0.15:
             if args.lumi < 200.:
@@ -267,7 +267,10 @@ if __name__ == '__main__':
     axes.set_xlabel('$m_A$ [GeV]')
     axes.set_ylabel('$\\tan\/\\beta$')
     
-    axes.text(0., 1.005, 'MSSM', ha='left', va='bottom', transform=axes.transAxes)
+    axes.text(
+        0., 1.005, 'Light $\\tilde t$ MSSM',
+        ha='left', va='bottom', transform=axes.transAxes
+    )
     
     if args.lumi >= 1e3:
         lumi_text = '{:g} ab$^{{-1}}$'.format(args.lumi / 1e3)
@@ -277,37 +280,6 @@ if __name__ == '__main__':
     axes.text(
         1., 1.005, 'Resolution {:g}%, $L = ${}'.format(args.resolution * 100, lumi_text),
         ha='right', va='bottom', transform=axes.transAxes
-    )
-    
-    
-    # Mark the region with large ggH k-factors
-    axes.set_xlim(*axes.get_xlim())
-    axes.set_ylim(*axes.get_ylim())
-    
-    paramfile = ROOT.TFile('params/MSSM.root')
-    hist_kfactor = paramfile.Get('kH_NNLO_13TeV')
-    hist_kfactor.SetDirectory(None)
-    paramfile.Close()
-    
-    x, y = [], []
-    
-    for bin in range(1, hist_kfactor.GetNbinsX() + 2):
-        x.append(hist_kfactor.GetXaxis().GetBinLowEdge(bin))
-    
-    for bin in range(1, hist_kfactor.GetNbinsY() + 2):
-        y.append(hist_kfactor.GetYaxis().GetBinLowEdge(bin))
-    
-    xx, yy = np.meshgrid(x, y)
-    kfactor = np.empty_like(xx)
-    
-    for ix, iy in itertools.product(
-        range(hist_kfactor.GetNbinsX()), range(hist_kfactor.GetNbinsY())
-    ):
-        kfactor[iy, ix] = hist_kfactor.GetBinContent(ix + 1, iy + 1)
-    
-    axes.contourf(
-        xx, yy, kfactor, [10., math.inf],
-        colors='none', hatches=['///'], zorder=1.5
     )
     
     fig.savefig(args.output)
