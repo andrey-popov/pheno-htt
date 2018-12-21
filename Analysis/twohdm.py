@@ -81,6 +81,9 @@ class XSecTwoHDM(PartonXSec):
     def xsec_even_res(self, sqrt_s, alpha_s):
         """Compute cross section for resonant gg -> H -> tt."""
         
+        if self.gH == 0.:
+            return 0.
+        
         s = sqrt_s ** 2
         
         if s <= 4 * self.mt ** 2:
@@ -98,6 +101,9 @@ class XSecTwoHDM(PartonXSec):
     
     def xsec_even_int(self, sqrt_s, alpha_s):
         """Compute cross section for interference in gg -> H -> tt."""
+        
+        if self.gH == 0.:
+            return 0.
         
         s = sqrt_s ** 2
         
@@ -119,6 +125,9 @@ class XSecTwoHDM(PartonXSec):
     def xsec_odd_res(self, sqrt_s, alpha_s):
         """Compute cross section for resonant gg -> A -> tt."""
         
+        if self.gA == 0.:
+            return 0.
+        
         s = sqrt_s ** 2
         
         if s <= 4 * self.mt ** 2:
@@ -136,6 +145,9 @@ class XSecTwoHDM(PartonXSec):
     
     def xsec_odd_int(self, sqrt_s, alpha_s):
         """Compute cross section for interference in gg -> A -> tt."""
+        
+        if self.gA == 0.:
+            return 0.
         
         s = sqrt_s ** 2
         
