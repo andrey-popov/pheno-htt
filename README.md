@@ -2,7 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/117536495.svg)](https://zenodo.org/badge/latestdoi/117536495)
 
-This repository provides supporting material for a phenomenological study of the production of a heavy Higgs boson decaying into a pair of top quarks. The code used to perform the scans over parameters of various signal models is included here. It is organized into three blocks:
+This repository provides supporting material for a phenomenological study of the production of a heavy Higgs boson decaying into a pair of top quarks: A.&nbsp;Djouadi, J.&nbsp;Ellis, A.&nbsp;Popov, J.&nbsp;Quevillon, *Interference effects in tt production at the LHC as a window on new physics* [[arXiv:1901.03417](https://arxiv.org/abs/1901.03417)]. The code used to perform the scans over parameters of various signal models is included here. It is organized into three blocks:
 
  * [Generation](Generation): Production of LHE files for several signal benchmarks and SM tt background, showering and hadronization.
  * [Event processing](EventProcessing): Programs to work with produced files with simulated events.
